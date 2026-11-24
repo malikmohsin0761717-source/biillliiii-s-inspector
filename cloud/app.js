@@ -19,7 +19,7 @@ async function api(url, options = {}) {
 
 function message(target, text, isError = false) {
   target.textContent = text;
-  target.style.color = isError ? '#ffb9bd' : '#b9d8ff';
+  target.classList.toggle('error', isError);
 }
 
 function showSignedIn(user) {
