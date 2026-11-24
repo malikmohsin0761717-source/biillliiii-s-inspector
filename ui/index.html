@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d19">
+  <meta name="description" content="Biillliiii's Inspector — a personal AI work companion UI prototype.">
+  <title>Biillliiii's Inspector</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/records-core.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="demo-ribbon"><span class="pulse-dot"></span> LOCAL-FIRST OWNER WORKSPACE · LOCAL OR SUPABASE LOGIN</div>
+
+  <section id="landing" class="landing-view">
+    <header class="site-header wrap">
+      <a class="brand" href="#welcome" aria-label="Biillliiii's Inspector home">
+        <span class="brand-mark"><span>B</span><i></i></span>
+        <span class="brand-name">Biillliiii<span>'s</span> Inspector</span>
+      </a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="#welcome-features">Features</a>
+        <a href="#welcome-privacy">Privacy</a>
+        <button class="btn btn-ghost btn-small" data-auth="signin" type="button">Log in</button>
+        <button class="btn btn-primary btn-small" id="welcomeHeaderAction" data-auth="signup" type="button">Get started</button>
+      </nav>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open login">Log in</button>
+    </header>
+
+    <main id="welcome">
+      <section class="welcome-hero wrap">
+        <div class="welcome-copy">
+          <div class="welcome-kicker"><span class="welcome-kicker-dot"></span> LOCAL-FIRST · PRIVATE WORKSPACE</div>
+          <h1>Bring your work<br><span>into focus.</span></h1>
+          <p class="welcome-lede">A calm, organised space for your projects, work sessions and next steps. Keep your information on this computer and stay in control of every monitoring session.</p>
+          <div class="welcome-actions">
+            <button class="btn btn-primary btn-large" id="welcomePrimaryAction" data-auth="signup" type="button">Create owner account</button>
+            <button class="btn btn-outline btn-large" data-auth="signin" type="button">Log in</button>
+          </div>
+          <p id="welcomeStatus" class="welcome-status" role="status" aria-live="polite">Your workspace opens after owner sign-in. Cloud connection is optional and requires owner configuration.</p>
+          <div class="welcome-assurance"><span>✓</span> Your data stays local <span class="assurance-divider">·</span> Monitoring is user-started <span class="assurance-divider">·</span> No cloud account required</div>
+        </div>
+
+        <div class="welcome-preview" aria-label="Illustrative workspace preview">
+          <div class="preview-window-bar"><span class="preview-window-mark">B</span><span>WORKSPACE OVERVIEW</span><span class="preview-local-tag"><i></i> LOCAL</span></div>
+          <div class="preview-window-content">
+            <div class="preview-greeting"><div><small>YOUR WORKSPACE</small><h2>A clearer view of your work</h2><p>Keep the important details together.</p></div><span class="preview-avatar">B</span></div>
+            <div class="preview-feature-list">
+              <div class="preview-feature-row"><span class="preview-icon icon-blue">▦</span><span><b>Project memory</b><small>Goals, decisions and progress in one place</small></span><span class="preview-row-arrow">→</span></div>
+              <div class="preview-feature-row"><span class="preview-icon icon-green">◷</span><span><b>Work sessions</b><small>Start, pause and stop when you choose</small></span><span class="preview-row-arrow">→</span></div>
+              <div class="preview-feature-row"><span class="preview-icon icon-sand">▤</span><span><b>Records & reports</b><small>Review and export your saved activity</small></span><span class="preview-row-arrow">→</span></div>
+            </div>
+            <div class="preview-bottom-note"><span class="preview-check">✓</span><span><b>Private by default</b><small>This is a visual preview, not your saved project data.</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="welcome-feature-section" id="welcome-features">
+        <div class="wrap">
+          <div class="welcome-section-heading"><span class="welcome-section-label">A PRACTICAL WORKSPACE</span><h2>Everything has a clear place.</h2><p>Start with simple tools that keep your work organised. Add more capabilities as the companion grows.</p></div>
+          <div class="welcome-feature-grid">
+            <article class="welcome-feature-card"><span class="welcome-feature-icon icon-blue">▦</span><h3>Project workspace</h3><p>Keep each project's goal, memory, checklist, decisions and history together.</p></article>
+            <article class="welcome-feature-card"><span class="welcome-feature-icon icon-green">◉</span><h3>User-controlled monitoring</h3><p>Record foreground app names and basic system health only after you press Start.</p></article>
+            <article class="welcome-feature-card"><span class="welcome-feature-icon icon-sand">▤</span><h3>Records you can review</h3><p>See saved sessions, understand what was recorded and export project notes.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="welcome-privacy-section" id="welcome-privacy">
+        <div class="wrap welcome-privacy-inner">
+          <div><span class="welcome-section-label">BUILT AROUND YOUR CONTROL</span><h2>Private work should feel simple.</h2><p>Your workspace runs locally. Monitoring does not start by itself, and this version does not read browser page content, URLs, keystrokes or clipboard data.</p></div>
+          <div class="privacy-points"><div><span>✓</span><b>Local project storage</b></div><div><span>✓</span><b>Owner login before workspace access</b></div><div><span>✓</span><b>Visible Start, Pause and Stop controls</b></div></div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap"><a class="brand" href="#welcome"><span class="brand-mark"><span>B</span><i></i></span><span class="brand-name">Biillliiii<span>'s</span> Inspector</span></a><span>Clear work. Local control. One step at a time.</span><span class="footer-demo">Local-first workspace · v11.0.1</span></footer>
+  </section>
+
+  <section id="authView" class="auth-view hidden">
+    <div class="auth-shell">
+      <div class="auth-side-panel">
+        <a class="brand auth-side-brand" href="#welcome" aria-label="Biillliiii's Inspector home">
+          <span class="brand-mark"><span>B</span><i></i></span>
+          <span class="brand-name">Biillliiii<span>'s</span> Inspector</span>
+        </a>
+        <div class="auth-side-copy">
+          <span class="welcome-section-label">YOUR PRIVATE WORKSPACE</span>
+          <h1>Good work starts with a clear space.</h1>
+          <p>Your projects and session records stay on this computer. Sign in to continue, or create the local owner account on first use.</p>
+          <div class="auth-side-points"><div><span>✓</span><b>Local owner access</b></div><div><span>✓</span><b>Project data stays protected</b></div><div><span>✓</span><b>Monitoring stays in your control</b></div></div>
+        </div>
+        <div class="auth-side-footer">LOCAL-FIRST · CLOUD OPTIONAL</div>
+      </div>
+      <div class="auth-main-panel">
+        <div class="auth-card">
+          <button class="auth-back-link" id="backToWelcome" type="button" data-auth-action="welcome">← Back to welcome</button>
+          <div class="auth-title">
+            <div class="eyebrow">SECURE LOCAL ACCESS</div>
+            <h2 id="authHeading">Checking owner account…</h2>
+            <p id="authDescription">Your dashboard stays locked until you sign in.</p>
+          </div>
+          <div class="auth-security-note" id="authSecurityNote">Your project data stays on this computer. Cloud connection is optional and requires owner configuration.</div>
+          <form id="authForm" class="auth-form" novalidate>
+            <div id="authFields"></div>
+            <p id="authError" class="auth-error" role="alert" aria-live="polite"></p>
+            <button class="btn btn-primary btn-full" id="authSubmit" type="submit" disabled>Please wait…</button>
+          </form>
+          <div id="authSecondaryActions" class="auth-secondary-actions"></div>
+          <p class="auth-footnote">Owner authentication protects the dashboard and local APIs. Monitoring remains user-controlled.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dashboard" class="dashboard-view hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand"><a class="brand" href="#dashboard-home"><span class="brand-mark"><span>B</span><i></i></span><span class="brand-name">Biillliiii<span>'s</span><small>INSPECTOR</small></span></a><button class="sidebar-collapse" id="collapseSidebar" aria-label="Toggle sidebar">«</button></div>
+      <div class="workspace-switch"><span class="workspace-avatar">B</span><span><b>My workspace</b><small>Personal preview</small></span><span class="chevron">⌄</span></div>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="side-nav" id="mainNav">
+        <button class="nav-item active" data-view="home"><span class="nav-ico">⌂</span>Home</button>
+        <button class="nav-item" data-view="projects"><span class="nav-ico">▦</span>Projects <span class="nav-count">3</span></button>
+        <button class="nav-item" data-view="monitoring"><span class="nav-ico">◉</span>Live monitoring <span class="nav-status-dot"></span></button>
+        <button class="nav-item" data-view="inspector"><span class="nav-ico">⌕</span>AI Project Inspector</button>
+        <button class="nav-item" data-view="records"><span class="nav-ico">▤</span>Records</button>
+        <button class="nav-item" data-view="chats"><span class="nav-ico">▱</span>Chats</button>
+        <button class="nav-item" data-view="ai-chatbot"><span class="nav-ico">✦</span>AI Chatbot</button>
+        <button class="nav-item" data-view="ai-teacher"><span class="nav-ico">🎓</span>AI Teacher</button>
+        <button class="nav-item" data-view="important"><span class="nav-ico">☆</span>Important</button>
+      </nav>
+      <div class="nav-label nav-label-spaced">MANAGE</div>
+      <nav class="side-nav">
+        <button class="nav-item" data-view="stopped"><span class="nav-ico">Ⅱ</span>Stopped</button>
+        <button class="nav-item" data-view="reminders"><span class="nav-ico">◷</span>Reminders <span class="nav-count warm" id="reminderNavCount">0</span></button>
+        <button class="nav-item" data-view="alerts"><span class="nav-ico">♧</span>Alerts <span class="nav-count alert-count hidden">0</span></button>
+        <button class="nav-item" data-view="reports"><span class="nav-ico">⇩</span>Reports</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="storage-card"><div class="storage-top"><span>Workspace storage</span><span>Local</span></div><div class="storage-track"><i></i></div><small>Optional manual cloud sync</small></div><button class="nav-item" data-view="settings"><span class="nav-ico">⚙</span>Settings</button><div class="profile-mini"><div class="profile-avatar">O</div><span><b id="profileUsername">Owner</b><small>Local owner</small></span><span class="more">•••</span></div></div>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-topbar"><button class="mobile-sidebar-toggle" id="mobileSidebarToggle">☰</button><div class="breadcrumbs"><span>Workspace</span><b>/</b><strong id="breadcrumbCurrent">Home</strong></div><div class="topbar-right"><button id="globalMonitorIndicator" class="global-monitor-indicator hidden" data-view="monitoring" type="button">● MONITORING ACTIVE · OPEN CONTROLS</button><span class="preview-pill"><i></i> LOCAL MODE</span><button class="icon-btn" data-view="alerts" aria-label="Alerts">♧<i class="notification-dot"></i></button><button class="help-btn" id="topHelp">? <span>Help</span></button><button class="help-btn logout-btn" id="logoutButton" type="button">Lock / Logout</button><div class="top-avatar" id="topAvatar">O</div></div></header>
+      <div class="dashboard-content">
+        <div class="preview-notice"><span>✦</span><div><b>Private local owner workspace.</b><small>Project records are stored on this computer. The dashboard and project APIs require an authenticated owner session. Monitoring starts only after you press Start.</small></div><button id="dismissNotice" aria-label="Dismiss notice">×</button></div>
+        <section id="viewContent" aria-live="polite"></section>
+        <footer class="dashboard-footer"><span>Biillliiii's Inspector <b>·</b> Local-first workspace v11.0.1</span><span>Your workspace. Your data. Your control.</span></footer>
+      </div>
+    </main>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Biillliiii Inspector — Manual Page Capture",
+  "version": "11.0.1",
+  "description": "User-approved, one-time visible page text capture. No background monitoring.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "Biillliiii Inspector",
+    "default_popup": "popup.html"
+  }
+}

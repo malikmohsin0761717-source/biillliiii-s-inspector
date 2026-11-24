@@ -1,0 +1,24 @@
+node_modules/
+data/projects.json
+data/projects.json.*.tmp
+data/projects.json.backup-*
+
+# Local owner credential hashes; never commit personal auth state
+data/auth.json
+data/auth.json.*.tmp
+
+# Local environment and secret material
+.env
+.env.*
+!.env.example
+Secret API Key.txt
+*.dpapi
+
+# Additional local and personal data protection
+data/*
+!data/projects.seed.json
+data_archive_*/
+data_fresh/
+*-backup-*/
+biillliiii_inspector_v5_development/
+biillliiii`s inspector/

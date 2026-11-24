@@ -1,0 +1,15 @@
+{
+  "name": "biillliiii-inspector-local-monitoring",
+  "version": "11.0.1",
+  "private": true,
+  "description": "Local-first owner workspace with isolated cloud sync, manual read-only inspection, reminders, reports and backup/restore",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "check": "node --check server.js && node --check auth.js && node --check ai-provider.js && node --check ui/app.js && node --check ui/records-core.js && node --check monitoring/monitoring-core.js && node --check monitoring/desktop-inspector-core.js && node --check workspace-core.js && node --check browser-extension/popup.js && node --check browser-extension/guards.js",
+    "test": "node --test tests/*.test.js",
+    "ai:key:set": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/openai-key.ps1 -Action Set",
+    "ai:key:enable": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/openai-key.ps1 -Action Enable",
+    "ai:key:disable": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/openai-key.ps1 -Action Disable",
+    "ai:key:remove": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/openai-key.ps1 -Action Remove"
+  }
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biillliiii Inspector</title>
+  <style>
+    body{font:13px system-ui,sans-serif;width:360px;margin:0;padding:14px;background:#101827;color:#eef2ff}
+    h1{font-size:16px;margin:0 0 8px}p{color:#aab7cc;line-height:1.5}
+    button{border:1px solid #66758e;background:#1d2b40;color:#fff;border-radius:8px;padding:9px 12px;cursor:pointer;margin:4px 4px 4px 0}
+    button.primary{background:#6458c9;border-color:#8176ee}button:disabled{opacity:.5;cursor:not-allowed}
+    textarea{width:100%;height:150px;box-sizing:border-box;background:#0b1220;color:#dce6ff;border:1px solid #394861;border-radius:8px;padding:8px;font:11px monospace}
+    small{color:#9aa8bf}.domain{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #2c394e}
+    .status{min-height:20px;color:#9ee6ca}
+  </style>
+</head>
+<body>
+  <h1>Biillliiii Inspector</h1>
+  <p><b>Manual capture only.</b> Har capture se pehle fresh confirmation zaroori hai, chahe domain pehle approved ho. Forms, passwords, OTP, email, payment aur mumkin secret/token wali pages block hoti hain. Koi background reading nahi.</p>
+  <div><button id="capture" class="primary">Confirm & capture once</button></div>
+  <div id="status" class="status" role="status"></div>
+  <label for="evidence"><b>Evidence preview (review before pasting into app)</b></label>
+  <textarea id="evidence" readonly placeholder="Captured evidence yahan nazar aayega."></textarea>
+  <h2 style="font-size:13px">Approved domains</h2>
+  <div id="domains"></div>
+  <small>Remove karne se extension ka saved approval aur host permission revoke ho jati hai. Saved approval future captures ki confirmation ko skip nahi karta.</small>
+  <script src="guards.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
