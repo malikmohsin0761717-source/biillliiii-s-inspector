@@ -1,3 +1,5 @@
+begin;
+
 -- Cloud hardening: prevent direct API writes of local-only AI histories.
 -- Existing history rows are never deleted. If any exist, this migration stops safely for review.
 alter table public.workspace_documents
@@ -18,3 +20,5 @@ begin
     check (document_type in ('workspace', 'reminders', 'important', 'alerts', 'settings'));
 end
 $$;
+
+commit;
