@@ -82,20 +82,19 @@ module.exports = async function cloudAuthHandler(req, res) {
       const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim()}://${String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim()}`;
       if (!/^https:\/\//.test(origin)) return sendJson(res, 400, { error: 'Secure HTTPS origin required for Google login.' });
       const verifier = require('node:crypto').randomBytes(48).toString('base64url');
-      const state = require('node:crypto').randomBytes(24).toString('base64url');
       const challenge = require('node:crypto').createHash('sha256').update(verifier).digest('base64url');
-      setCookie(res, OAUTH_COOKIE, seal({ verifier, state, createdAt: Date.now() }), 600, 'Lax');
+      // Supabase Auth creates and validates its own OAuth state/flow_state. The app binds the callback to this browser with the PKCE verifier cookie.
+      setCookie(res, OAUTH_COOKIE, seal({ verifier, createdAt: Date.now() }), 600, 'Lax');
       const redirect = `${origin}/api/cloud-auth/callback`;
-      const target = `${c.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=s256&state=${encodeURIComponent(state)}`;
+      const target = `${c.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=s256`;
       res.statusCode = 302; res.setHeader('Location', target); res.setHeader('Cache-Control', 'no-store'); return res.end();
     }
 
     if (action === 'callback' && method === 'GET') {
       const flow = unseal(parseCookies(req)[OAUTH_COOKIE]);
       const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
-      const state = url.searchParams.get('state');
       const code = url.searchParams.get('code');
-      if (!flow || flow.createdAt < Date.now() - 10 * 60 * 1000 || !state || state !== flow.state || !code) return sendJson(res, 400, { error: 'Google login state invalid ya expire ho gaya. Dobara try karein.' });
+      if (!flow || !flow.verifier || flow.createdAt < Date.now() - 10 * 60 * 1000 || !code) return sendJson(res, 400, { error: 'Google login flow invalid ya expire ho gaya. Dobara try karein.' });
       const result = await supabaseRequest('/auth/v1/token?grant_type=pkce', { method: 'POST', body: JSON.stringify({ auth_code: code, code_verifier: flow.verifier }) });
       saveSession(res, result);
       clearCookie(res, OAUTH_COOKIE, 'Lax');
