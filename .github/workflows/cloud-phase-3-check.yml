@@ -1,0 +1,29 @@
+name: Cloud Phase 3 checks
+
+on:
+  push:
+    branches:
+      - cloud-phase-3-vercel-adapter
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run full project tests
+        run: npm test
+      - name: Run existing syntax checks
+        run: npm run check
+      - name: Check Vercel cloud adapter syntax
+        run: |
+          node --check api/_lib/cloud-session.js
+          node --check 'api/cloud-auth/[action].js'
+          node --check api/cloud-documents.js
+          node --check cloud/app.js
