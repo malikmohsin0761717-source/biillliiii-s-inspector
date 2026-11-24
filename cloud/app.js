@@ -42,6 +42,8 @@ function setAuthMode(signup) {
   $('#authTitle').textContent = signup ? 'Create cloud account' : 'Cloud sign in';
   $('#authSubmit').textContent = signup ? 'Create account' : 'Log in';
   $('#emailField').classList.remove('hidden');
+  $('#email').required = true;
+  $('#googleLogin').classList.remove('hidden');
   $('#passwordField').classList.remove('hidden');
   $('#passwordField').firstChild.textContent = 'Password';
   $('#confirmField').classList.add('hidden');
@@ -61,6 +63,8 @@ function showRecoveryForm() {
   showSignedOut();
   $('#authTitle').textContent = 'Set a new cloud password';
   $('#emailField').classList.add('hidden');
+  $('#email').required = false;
+  $('#googleLogin').classList.add('hidden');
   $('#passwordField').classList.remove('hidden');
   $('#passwordField').firstChild.textContent = 'New password';
   $('#confirmField').classList.remove('hidden');
@@ -162,6 +166,7 @@ $('#authForm').addEventListener('submit', async (event) => {
 });
 
 $('#toggleAuth').addEventListener('click', () => setAuthMode(!signupMode));
+$('#googleLogin').addEventListener('click', () => { window.location.href = '/api/cloud-auth/google'; });
 $('#forgotPassword').addEventListener('click', async () => {
   const email = $('#email').value.trim();
   if (!email) return message($('#authMessage'), 'Pehle email address likhein.', true);
