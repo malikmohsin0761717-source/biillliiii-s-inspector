@@ -111,7 +111,7 @@ module.exports = async function cloudAuthHandler(req, res) {
     if (action === 'sync' && method === 'POST') {
       const session = requireSession(await getSession(req, res));
       const body = readBody(req);
-      if (!Array.isArray(body.projects) || body.projects.length > 250) return sendJson(res, 400, { error: 'Projects payload invalid hai (maximum 250).' });
+      if (!Array.isArray(body.projects) || body.projects.length > 250 || body.projects.some(project => !project || typeof project !== 'object' || Array.isArray(project))) return sendJson(res, 400, { error: 'Projects payload invalid hai (maximum 250 objects).' });
       const rows = body.projects.map(project => ({
         project_code: String(project.id || '').slice(0, 64),
         name: String(project.name || '').slice(0, 120),
