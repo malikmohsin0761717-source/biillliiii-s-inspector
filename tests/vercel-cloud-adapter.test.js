@@ -40,7 +40,7 @@ test('cloud adapter uses encrypted secure cookies and never requires a service-r
   assert.match(sessionSource, /aes-256-gcm/);
   assert.match(sessionSource, /HttpOnly; Secure; SameSite=/);
   assert.match(sessionSource, /BI_CLOUD_SESSION_SECRET/);
-  assert.match(auth, /SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(sessionSource, /SUPABASE_PUBLISHABLE_KEY/);
   assert.doesNotMatch(auth + documents, /SUPABASE_SERVICE_ROLE_KEY|service_role/i);
   assert.match(sessionSource, /grant_type=refresh_token/);
   assert.match(auth, /grant_type=pkce/);
