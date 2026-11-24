@@ -84,7 +84,11 @@ function assertSameOrigin(req, allowOAuthCallback = false) {
 }
 
 function readBody(req) {
-  if (req.body && typeof req.body === 'object') return req.body;
+  if (req.body && typeof req.body === 'object') {
+    const size = Buffer.byteLength(JSON.stringify(req.body), 'utf8');
+    if (size > MAX_BODY_BYTES) throw Object.assign(new Error('Request body is too large.'), { status: 413 });
+    return req.body;
+  }
   const raw = typeof req.body === 'string' ? req.body : '';
   if (Buffer.byteLength(raw, 'utf8') > MAX_BODY_BYTES) throw Object.assign(new Error('Request body is too large.'), { status: 413 });
   if (!raw) return {};
