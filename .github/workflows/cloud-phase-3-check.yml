@@ -3,11 +3,12 @@ name: Cloud Phase 3 checks
 on:
   push:
     branches:
+      - main
+      - cloud-final-hardening
       - cloud-phase-3-vercel-adapter
   pull_request:
     branches:
       - main
-      - cloud-phase-2-supabase-schema
   workflow_dispatch:
 
 jobs:

@@ -19,3 +19,12 @@ from information_schema.role_table_grants
 where table_schema = 'public'
   and table_name = 'workspace_documents'
 order by grantee, privilege_type;
+
+-- Confirm the database rejects local-only AI history document types.
+select
+  conname,
+  pg_get_constraintdef(oid) as constraint_definition,
+  convalidated
+from pg_constraint
+where conrelid = 'public.workspace_documents'::regclass
+  and conname = 'workspace_documents_document_type_check';

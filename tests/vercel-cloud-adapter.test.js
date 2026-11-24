@@ -44,6 +44,8 @@ test('cloud adapter uses encrypted secure cookies and never requires a service-r
   assert.doesNotMatch(auth + documents, /SUPABASE_SERVICE_ROLE_KEY|service_role/i);
   assert.match(sessionSource, /grant_type=refresh_token/);
   assert.match(auth, /grant_type=pkce/);
+  assert.match(auth, /Supabase Auth creates and validates its own OAuth state/);
+  assert.doesNotMatch(auth, /searchParams\.get\('state'\)|&state=\$\{encodeURIComponent\(state\)\}/);
 });
 
 test('document API enforces allowlisted types, JSON objects and 1 MiB payloads', () => {

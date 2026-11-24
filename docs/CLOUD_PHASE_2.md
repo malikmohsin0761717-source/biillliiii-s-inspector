@@ -17,6 +17,8 @@ This phase adds an owner-scoped `public.workspace_documents` table for explicitl
 3. Review and run `supabase/migrations/202611240001_cloud_workspace_documents.sql`.
 4. Run the read-only checks in `supabase/VERIFY_CLOUD_PHASE_2.sql`.
 5. Confirm RLS is enabled, exactly four owner policies exist, and only authenticated users have table CRUD grants.
+6. Because the first version of the migration was already applied, also run `supabase/migrations/202611240002_restrict_cloud_document_types.sql` once. It blocks direct cloud writes of local-only AI histories. It never deletes rows; if any such rows already exist, it stops and rolls back for review.
+7. Re-run `supabase/VERIFY_CLOUD_PHASE_2.sql` and confirm the document-type constraint contains only `workspace`, `reminders`, `important`, `alerts`, and `settings`.
 
 Do not run this migration in any other Supabase project.
 

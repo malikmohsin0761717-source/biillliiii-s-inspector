@@ -13,9 +13,7 @@ create table if not exists public.workspace_documents (
       'reminders',
       'important',
       'alerts',
-      'settings',
-      'chatbot_history',
-      'teacher_history'
+      'settings'
     )),
   document_key text not null
     check (char_length(document_key) between 1 and 120),
