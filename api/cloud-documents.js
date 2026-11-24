@@ -4,10 +4,8 @@ const {
   assertSameOrigin, readBody, sendJson, supabaseRequest, getSession, requireSession
 } = require('./_lib/cloud-session');
 
-const ALLOWED_TYPES = new Set([
-  'workspace', 'reminders', 'important', 'alerts', 'settings',
-  'chatbot_history', 'teacher_history'
-]);
+// AI history types intentionally stay unavailable until a separate explicit sync feature is approved.
+const ALLOWED_TYPES = new Set(['workspace', 'reminders', 'important', 'alerts', 'settings']);
 
 function queryValue(req, name) {
   if (req.query && typeof req.query[name] === 'string') return req.query[name];
