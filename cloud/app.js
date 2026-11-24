@@ -2,6 +2,7 @@
 
 const $ = (selector) => document.querySelector(selector);
 let signupMode = false;
+let recoveryMode = false;
 let currentUser = null;
 
 async function api(url, options = {}) {
@@ -37,12 +38,40 @@ function showSignedOut() {
 
 function setAuthMode(signup) {
   signupMode = signup;
+  recoveryMode = false;
   $('#authTitle').textContent = signup ? 'Create cloud account' : 'Cloud sign in';
   $('#authSubmit').textContent = signup ? 'Create account' : 'Log in';
+  $('#emailField').classList.remove('hidden');
+  $('#passwordField').classList.remove('hidden');
+  $('#passwordField').firstChild.textContent = 'Password';
+  $('#confirmField').classList.add('hidden');
   $('#password').autocomplete = signup ? 'new-password' : 'current-password';
-  $('#toggleAuth').textContent = signup ? 'Back to cloud login' : 'Create a cloud account';
+  $('#password').value = '';
+  $('#confirmPassword').value = '';
+  $('#toggleAuth').classList.remove('hidden');
   $('#forgotPassword').classList.toggle('hidden', signup);
   $('#authMessage').textContent = '';
+  $('#password').required = true;
+  $('#confirmPassword').required = false;
+}
+
+function showRecoveryForm() {
+  signupMode = false;
+  recoveryMode = true;
+  showSignedOut();
+  $('#authTitle').textContent = 'Set a new cloud password';
+  $('#emailField').classList.add('hidden');
+  $('#passwordField').classList.remove('hidden');
+  $('#passwordField').firstChild.textContent = 'New password';
+  $('#confirmField').classList.remove('hidden');
+  $('#authSubmit').textContent = 'Update password';
+  $('#toggleAuth').classList.add('hidden');
+  $('#forgotPassword').classList.add('hidden');
+  $('#password').value = '';
+  $('#confirmPassword').value = '';
+  $('#password').required = true;
+  $('#confirmPassword').required = true;
+  message($('#authMessage'), 'Naya password 12–128 characters ka hona chahiye.');
 }
 
 async function loadDocuments() {
@@ -107,8 +136,17 @@ async function loadProjects() {
 $('#authForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const button = $('#authSubmit'); button.disabled = true;
-  message($('#authMessage'), signupMode ? 'Account create ho raha hai…' : 'Login check ho raha hai…');
+  message($('#authMessage'), recoveryMode ? 'Password update ho raha hai…' : (signupMode ? 'Account create ho raha hai…' : 'Login check ho raha hai…'));
   try {
+    if (recoveryMode) {
+      const password = $('#password').value;
+      if (password.length < 12 || password.length > 128 || password !== $('#confirmPassword').value) throw new Error('Password 12–128 characters ka ho aur dono fields match karein.');
+      await api('/api/cloud-auth/update-password', { method: 'POST', body: JSON.stringify({ password }) });
+      recoveryMode = false;
+      setAuthMode(false);
+      message($('#authMessage'), 'Password update ho gaya. Ab naye password se login karein.');
+      return;
+    }
     const result = await api(signupMode ? '/api/cloud-auth/signup' : '/api/cloud-auth/login', {
       method: 'POST',
       body: JSON.stringify({ email: $('#email').value.trim(), password: $('#password').value })
@@ -157,6 +195,16 @@ $('#saveDocument').addEventListener('click', async () => {
 
 async function initialize() {
   try {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    if (hash.get('type') === 'recovery' && hash.get('access_token') && hash.get('refresh_token')) {
+      await api('/api/cloud-auth/recovery-session', {
+        method: 'POST',
+        body: JSON.stringify({ access_token: hash.get('access_token'), refresh_token: hash.get('refresh_token'), expires_in: hash.get('expires_in') })
+      });
+      window.history.replaceState({}, '', '/');
+      showRecoveryForm();
+      return;
+    }
     const status = await api('/api/cloud-auth/status');
     if (status.authenticated) showSignedIn(status.user);
     else showSignedOut();
