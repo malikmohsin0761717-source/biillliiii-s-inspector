@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Biillliiii Inspector secure cloud workspace">
+  <title>Biillliiii Inspector · Cloud Workspace</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand"><span class="mark">B</span><div><strong>Biillliiii Inspector</strong><small>SECURE CLOUD WORKSPACE</small></div></div>
+      <span class="privacy">Supabase Auth · Owner-only RLS</span>
+    </header>
+
+    <section id="authPanel" class="panel auth">
+      <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
+      <h1 id="authTitle">Cloud sign in</h1>
+      <p class="muted">Apne Supabase account se sign in karein. Cloud login aapke local PC login se alag hai.</p>
+      <form id="authForm">
+        <label id="emailField">Email<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label id="passwordField">Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
+        <label id="confirmField" class="hidden">Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
+        <button id="authSubmit" class="primary" type="submit">Log in</button>
+      </form>
+      <div class="auth-actions"><button id="toggleAuth" class="link" type="button">Create a cloud account</button><button id="forgotPassword" class="link" type="button">Forgot password?</button></div><button id="googleLogin" class="secondary google" type="button">Continue with Google</button>
+      <p id="authMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="workspacePanel" class="hidden">
+      <div class="welcome panel">
+        <div><p class="eyebrow">SIGNED-IN CLOUD ACCOUNT</p><h1>Cloud workspace</h1><p id="accountEmail" class="muted"></p></div>
+        <button id="logoutButton" class="secondary" type="button">Log out</button>
+      </div>
+      <div class="notice"><strong>Privacy boundary:</strong> Is page par sirf woh data save hota hai jo aap khud yahan add karein. Local projects, AI chat histories, Windows monitoring aur local files automatic upload nahi hotin.</div>
+      <div class="columns">
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">SUPABASE STORAGE</p><h2>Workspace documents</h2></div><span class="tag">RLS protected</span></div>
+          <label>Document type<select id="documentType"><option value="workspace">Workspace</option><option value="reminders">Reminders</option><option value="important">Important notes</option><option value="alerts">Alerts</option><option value="settings">Settings</option></select></label>
+          <label>Document key<input id="documentKey" maxlength="120" placeholder="e.g. my-workspace"></label>
+          <label>JSON payload<textarea id="documentPayload" rows="8" spellcheck="false">{}</textarea></label>
+          <button id="saveDocument" class="primary" type="button">Save document</button>
+          <p id="documentMessage" class="message" role="status" aria-live="polite"></p>
+          <div class="panel-heading list-heading"><h3>Saved documents</h3><button id="refreshDocuments" class="link" type="button">Refresh</button></div>
+          <div id="documentsList" class="items"><p class="muted">Loading…</p></div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">EXISTING CLOUD DATA</p><h2>Projects</h2></div><span class="tag">Read only</span></div>
+          <p class="muted">Yeh list Supabase ke projects table se aati hai. Is screen se local project data import ya overwrite nahi hota.</p>
+          <button id="refreshProjects" class="secondary" type="button">Load my cloud projects</button>
+          <div id="projectsList" class="items"><p class="muted">Projects abhi load nahi huay.</p></div>
+        </section>
+      </div>
+      <footer>Local Windows monitoring aur local-first app apne PC par alag chalti rahegi. Cloud deployment unhein remotely start nahi karta.</footer>
+    </section>
+  </main>
+</body>
+</html>
