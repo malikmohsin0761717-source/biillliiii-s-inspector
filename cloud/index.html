@@ -21,8 +21,9 @@
       <h1 id="authTitle">Cloud sign in</h1>
       <p class="muted">Apne Supabase account se sign in karein. Cloud login aapke local PC login se alag hai.</p>
       <form id="authForm">
-        <label>Email<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
-        <label>Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
+        <label id="emailField">Email<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label id="passwordField">Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
+        <label id="confirmField" class="hidden">Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
         <button id="authSubmit" class="primary" type="submit">Log in</button>
       </form>
       <div class="auth-actions"><button id="toggleAuth" class="link" type="button">Create a cloud account</button><button id="forgotPassword" class="link" type="button">Forgot password?</button></div>
