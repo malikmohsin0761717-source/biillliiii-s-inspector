@@ -48,11 +48,25 @@ module.exports = async function cloudAuthHandler(req, res) {
 
     if ((action === 'recovery-session' || action === 'session-exchange') && method === 'POST') {
       const body = readBody(req);
-      const accessToken = String(body.access_token || '');
-      const refreshToken = String(body.refresh_token || '');
-      if (!accessToken || !refreshToken) return sendJson(res, 400, { error: 'Recovery link incomplete hai.' });
-      const user = await supabaseRequest('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
-      const sessionUser = saveSession(res, { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user });
+      let result;
+      const tokenHash = String(body.token_hash || '');
+      if (tokenHash) {
+        const type = String(body.type || '');
+        if (!['signup','invite','magiclink','recovery','email'].includes(type) || tokenHash.length > 512) {
+          return sendJson(res, 400, { error: 'Email confirmation link invalid hai.' });
+        }
+        result = await supabaseRequest('/auth/v1/verify', {
+          method: 'POST', body: JSON.stringify({ token_hash: tokenHash, type })
+        });
+      } else {
+        const accessToken = String(body.access_token || '');
+        const refreshToken = String(body.refresh_token || '');
+        if (!accessToken || !refreshToken) return sendJson(res, 400, { error: 'Confirmation/recovery link incomplete hai.' });
+        const user = await supabaseRequest('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
+        result = { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user };
+      }
+      if (!result.access_token || !result.refresh_token) return sendJson(res, 400, { error: 'Email link verify hua lekin session receive nahi hua. Dobara link request karein.' });
+      const sessionUser = saveSession(res, result);
       return sendJson(res, 200, { authenticated: true, user: sessionUser });
     }
 
