@@ -73,7 +73,8 @@ test('local auth patch script backs up code, preserves user data and verifies be
   assert.match(patch, /Remove-Item -LiteralPath \$CreatedFile/);
   assert.match(patch, /windows-snapshot\.ps1/);
   assert.match(patch, /desktop-inspector\.ps1/);
-  assert.match(patch, /-ApprovedApps ''/);
+  assert.match(patch, /-File \(Join-Path \$TargetPath 'monitoring\\desktop-inspector\.ps1'\)\s*\r?\n/);
+  assert.doesNotMatch(patch, /desktop-inspector\.ps1'\)\s+-ApprovedApps/);
   assert.match(patch, /SHA-256 verification fail/);
 });
 
