@@ -69,6 +69,8 @@ test('local auth patch script backs up code, preserves user data and verifies be
   assert.match(patch, /npm\.cmd test/);
   assert.match(patch, /npm\.cmd run check/);
   assert.match(patch, /Code rollback complete/);
+  assert.match(patch, /\$Created\.Add/);
+  assert.match(patch, /Remove-Item -LiteralPath \$CreatedFile/);
   assert.match(patch, /windows-snapshot\.ps1/);
   assert.match(patch, /desktop-inspector\.ps1/);
   assert.match(patch, /-ApprovedApps ''/);
