@@ -12,6 +12,12 @@ test('hosted signup sends a same-site email confirmation redirect',()=>{
  assert.ok(route.includes('emailRedirectTo:'));
  assert.ok(route.includes('Secure HTTPS origin required for email confirmation'));
 });
+test('signup detects existing Supabase accounts instead of falsely promising another confirmation email',()=>{
+ assert.ok(route.includes('existingAccount'));
+ assert.ok(route.includes('result.user?.identities'));
+ assert.ok(app.includes('result.existingAccount'));
+ assert.ok(app.includes('Forgot password se naya password set karein'));
+});
 test('password recovery sends a same-site redirect and retains the recovery session flow',()=>{
  assert.ok(route.includes('/auth/v1/recover?redirect_to='));
  assert.ok(route.includes('recovery-session'));
