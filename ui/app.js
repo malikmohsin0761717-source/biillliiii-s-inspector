@@ -1595,12 +1595,18 @@ for (const eventName of ['pointerdown', 'keydown', 'touchstart']) {
 async function initializeOwnerWorkspace() {
   showLanding('Checking local owner setup…');
   try {
-    const recovery = new URLSearchParams(window.location.hash.slice(1));
-    if (recovery.get('type') === 'recovery' && recovery.get('access_token') && recovery.get('refresh_token')) {
-      await api('/api/cloud-auth/recovery-session', { method: 'POST', body: JSON.stringify({ access_token: recovery.get('access_token'), refresh_token: recovery.get('refresh_token'), expires_in: recovery.get('expires_in') }) });
+    const authHash = new URLSearchParams(window.location.hash.slice(1));
+    const authQuery = new URLSearchParams(window.location.search);
+    const authType = authHash.get('type') || authQuery.get('type') || '';
+    const tokenHash = authQuery.get('token_hash');
+    if (tokenHash && authType) {
+      await api('/api/cloud-auth/session-exchange', { method: 'POST', body: JSON.stringify({ token_hash: tokenHash, type: authType }) });
       window.history.replaceState({}, '', '/');
-      showAuth('cloud-recovery');
-      return;
+      if (authType === 'recovery') { showAuth('cloud-recovery'); return; }
+    } else if (['recovery','signup','invite','magiclink','email'].includes(authType) && authHash.get('access_token') && authHash.get('refresh_token')) {
+      await api('/api/cloud-auth/session-exchange', { method: 'POST', body: JSON.stringify({ access_token: authHash.get('access_token'), refresh_token: authHash.get('refresh_token'), expires_in: authHash.get('expires_in') }) });
+      window.history.replaceState({}, '', '/');
+      if (authType === 'recovery') { showAuth('cloud-recovery'); return; }
     }
     const status = await api('/api/auth/status');
     authConfigured = status.configured === true; cloudConfigured = status.cloudConfigured === true;
