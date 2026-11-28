@@ -167,21 +167,21 @@ function showAuth(mode, message = '') {
     note.textContent = 'Cloud login Supabase Auth use karta hai. Local owner login fallback ke taur par available rahega.';
     fields.innerHTML = `
       <label class="input-label">Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
-      <label class="input-label">Password<input name="password" type="password" minlength="12" autocomplete="current-password" required placeholder="Your cloud password"></label>`;
+      <label class="input-label">Password<div class="auth-password-wrap"><input name="password" type="password" minlength="12" autocomplete="current-password" required placeholder="Your cloud password"><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label>`;
     submit.textContent = 'Log in with email';
     secondary.innerHTML = '<button class="auth-link" type="button" data-auth-action="cloud-signup">Create cloud account</button><button class="auth-link" type="button" data-auth-action="cloud-recover">Forgot cloud password?</button><button class="auth-link" type="button" data-auth-action="google-login">Continue with Google</button><button class="auth-link" type="button" data-auth-action="signin">Use local owner login</button>';
   } else if (mode === 'cloud-signup') {
     heading.textContent = 'Create cloud account';
     description.textContent = 'Email aur strong password se Supabase account banayein.';
     note.textContent = 'Email confirmation enabled ho to inbox mein verification link aayega.';
-    fields.innerHTML = `<label class="input-label">Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label class="input-label">Password<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"></label>`;
+    fields.innerHTML = `<label class="input-label">Email<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label class="input-label">Password<div class="auth-password-wrap"><input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label>`;
     submit.textContent = 'Create cloud account';
     secondary.innerHTML = '<button class="auth-link" type="button" data-auth-action="cloud-signin">Back to cloud login</button><button class="auth-link" type="button" data-auth-action="signin">Use local owner login</button>';
   } else if (mode === 'cloud-recovery') {
     heading.textContent = 'Choose a new cloud password';
     description.textContent = 'Email reset link verify ho gaya. Ab naya password set karein.';
     note.textContent = 'Kam az kam 12 characters ka unique password use karein.';
-    fields.innerHTML = '<label class="input-label">New password<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label><label class="input-label">Confirm new password<input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>';
+    fields.innerHTML = '<label class="input-label">New password<div class="auth-password-wrap"><input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label><label class="input-label">Confirm new password<div class="auth-password-wrap"><input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><button class="auth-link" type="button" data-password-toggle aria-label="Show confirmation password">Show</button></div></label>';
     submit.textContent = 'Update cloud password';
     secondary.innerHTML = '';
   } else if (mode === 'cloud-recover') {
@@ -197,8 +197,8 @@ function showAuth(mode, message = '') {
     note.textContent = 'Use a unique passphrase of at least 12 characters. A one-time recovery code will be shown after setup.';
     fields.innerHTML = `
       <label class="input-label">Owner username<input name="username" type="text" minlength="3" maxlength="32" autocomplete="username" required placeholder="e.g. MyOwner"></label>
-      <label class="input-label">Password<input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"></label>
-      <label class="input-label">Confirm password<input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="Enter the same password"></label>`;
+      <label class="input-label">Password<div class="auth-password-wrap"><input name="password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label>
+      <label class="input-label">Confirm password<div class="auth-password-wrap"><input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="Enter the same password"><button class="auth-link" type="button" data-password-toggle aria-label="Show confirmation password">Show</button></div></label>`;
     submit.textContent = 'Create Owner Account';
     secondary.innerHTML = '<button class="auth-link" type="button" data-auth-action="cloud-signin">Use Supabase cloud account</button>';
   } else if (mode === 'signin') {
@@ -207,7 +207,7 @@ function showAuth(mode, message = '') {
     note.textContent = 'Dashboard, project records, exports and monitoring controls remain locked until login succeeds.';
     fields.innerHTML = `
       <label class="input-label">Owner username<input name="username" type="text" autocomplete="username" required placeholder="Your owner username"></label>
-      <label class="input-label">Password<input name="password" type="password" autocomplete="current-password" required placeholder="Your owner password"></label>`;
+      <label class="input-label">Password<div class="auth-password-wrap"><input name="password" type="password" autocomplete="current-password" required placeholder="Your owner password"><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label>`;
     submit.textContent = 'Log in securely';
     secondary.innerHTML = '<button class="auth-link" type="button" data-auth-action="recover">Forgot password? Use recovery code</button><button class="auth-link" type="button" data-auth-action="cloud-signin">Use Supabase cloud account</button>';
   } else if (mode === 'recover') {
@@ -217,8 +217,8 @@ function showAuth(mode, message = '') {
     fields.innerHTML = `
       <label class="input-label">Owner username<input name="username" type="text" autocomplete="username" required placeholder="Your owner username"></label>
       <label class="input-label">Recovery code<input name="recoveryCode" type="text" autocomplete="off" required placeholder="40-character recovery code"></label>
-      <label class="input-label">New password<input name="newPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"></label>
-      <label class="input-label">Confirm new password<input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="Enter the same password"></label>`;
+      <label class="input-label">New password<div class="auth-password-wrap"><input name="newPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="At least 12 characters"><button class="auth-link" type="button" data-password-toggle aria-label="Show password">Show</button></div></label>
+      <label class="input-label">Confirm new password<div class="auth-password-wrap"><input name="confirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required placeholder="Enter the same password"><button class="auth-link" type="button" data-password-toggle aria-label="Show confirmation password">Show</button></div></label>`;
     submit.textContent = 'Verify code and reset password';
     secondary.innerHTML = '<button class="auth-link" type="button" data-auth-action="signin">Back to login</button>';
   } else if (mode === 'recovery-confirm') {
@@ -1070,6 +1070,17 @@ document.addEventListener('click', async (event) => {
 
 document.addEventListener('click', async (event) => {
   if (authenticated) pingActivity();
+  const passwordToggle=event.target.closest('[data-password-toggle]');
+  if(passwordToggle){
+    const input=passwordToggle.parentElement?.querySelector('input');
+    if(input){
+      const reveal=input.type==='password';
+      input.type=reveal?'text':'password';
+      passwordToggle.textContent=reveal?'Hide':'Show';
+      passwordToggle.setAttribute('aria-label',(reveal?'Hide ':'Show ')+(input.name==='confirmPassword'?'confirmation password':'password'));
+    }
+    return;
+  }
   const authAction = event.target.closest('[data-auth-action]');
   if (authAction) {
     if (authAction.dataset.authAction === 'welcome') { showLanding(); return; }
