@@ -33,8 +33,17 @@ module.exports = async function cloudAuthHandler(req, res) {
       const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim()}://${String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim()}`;
       if (!/^https:\/\//.test(origin)) return sendJson(res, 400, { error: 'Secure HTTPS origin required for email confirmation.' });
       const result = await supabaseRequest('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${origin}/` } }) });
+      const existingAccount = Array.isArray(result.user?.identities) && result.user.identities.length === 0;
       if (result.access_token) saveSession(res, result);
-      return sendJson(res, 201, { created: true, authenticated: Boolean(result.access_token), confirmationRequired: !result.access_token, message: result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation link bhej diya gaya hai.' });
+      return sendJson(res, existingAccount ? 200 : 201, {
+        created: !existingAccount && Boolean(result.user),
+        existingAccount,
+        authenticated: Boolean(result.access_token),
+        confirmationRequired: !existingAccount && !result.access_token,
+        message: existingAccount
+          ? 'Is email par cloud account pehle se mojood hai. Log in karein ya Forgot password se naya password set karein.'
+          : result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation request process ho gayi hai.'
+      });
     }
 
     if (action === 'login' && method === 'POST') {
