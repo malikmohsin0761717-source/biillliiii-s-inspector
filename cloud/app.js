@@ -70,6 +70,7 @@ function showView(name) {
   if (name === 'projects') void loadProjects();
   if (name === 'chatbot' || name === 'teacher') void loadHistory(name);
   if (name === 'teacher') void loadProgress();
+  if (name === 'reminders') void scheduleReminderNotifications();
   if (name === 'inspector') void loadProjects();
   if (['records','chats','important','stopped','reminders','alerts','reports','settings'].includes(name)) void loadDocumentsForView(name);
 }
@@ -289,7 +290,15 @@ async function loadDocumentsForView(view) {
       const card=el('article','item');const top=el('div','item-top');top.append(el('b','',doc.document_key.slice(prefix.length)));
       const actions=el('div','item-actions');
       const edit=el('button','secondary','Edit');edit.type='button';
-      edit.addEventListener('click',()=>{const keyInput=$('#'+view+'DocKey');const payloadInput=$('#'+view+'DocPayload');if(keyInput)keyInput.value=doc.document_key.slice(prefix.length);if(payloadInput)payloadInput.value=JSON.stringify(doc.payload,null,2);const saveForm=$('[data-panel="'+view+'"] .document-form');saveForm?.scrollIntoView({behavior:'smooth',block:'center'});});
+      edit.addEventListener('click',()=>{
+        const keyInput=$('#'+view+'DocKey');const payloadInput=$('#'+view+'DocPayload');
+        if(keyInput)keyInput.value=doc.document_key.slice(prefix.length);
+        if(payloadInput)payloadInput.value=JSON.stringify(doc.payload,null,2);
+        const detailInput=$('#'+view+'DocDetails');if(detailInput)detailInput.value=doc.payload?.details||'';
+        const dueInput=$('#'+view+'DocDue');if(dueInput)dueInput.value=doc.payload?.dueAt?new Date(doc.payload.dueAt).toISOString().slice(0,16):'';
+        const statusInput=$('#'+view+'DocStatus');if(statusInput)statusInput.value=doc.payload?.status||'Open';
+        const saveForm=$('[data-panel="'+view+'"] .document-form');saveForm?.scrollIntoView({behavior:'smooth',block:'center'});
+      });
       const del=el('button','delete','Delete');del.type='button';
       del.addEventListener('click',async()=>{if(!window.confirm('Sirf is cloud item ko delete karna hai?'))return;del.disabled=true;try{await api('/api/cloud-documents?type='+docType(view)+'&key='+encodeURIComponent(doc.document_key),{method:'DELETE'});await loadDocumentsForView(view);}catch(e){message($('#'+view+'DocMessage'),e.message,true);del.disabled=false;}});
       actions.append(edit,del);top.append(actions);const pre=el('p','muted',doc.payload?.details||JSON.stringify(doc.payload,null,2));card.append(top,pre);if(doc.payload?.dueAt)card.append(el('small','',new Date(doc.payload.dueAt).toLocaleString()));if(doc.payload?.status)card.append(el('small','',doc.payload.status));list.append(card);
