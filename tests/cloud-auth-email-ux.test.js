@@ -35,7 +35,8 @@ test('cloud login and signup provide accessible password visibility controls',()
  assert.ok(html.includes('minlength="1" maxlength="128" required'));
  assert.ok(app.includes("$('#password').minLength = signup ? 12 : 1"));
  assert.ok(html.includes('id="googleLogin" class="secondary google" type="button" disabled'));
- assert.ok(app.includes('dobara signup se nayi mail nahi aati'));
+ assert.ok(app.includes('result.existingAccount'));
+ assert.ok(app.includes('result.message||'));
  assert.ok(app.includes("setAttribute('aria-label'"));
  assert.ok(app.includes("['recovery','signup','invite','magiclink','email'].includes(authType)"));
  assert.ok(app.includes("showSignedIn(exchanged.user)"));
