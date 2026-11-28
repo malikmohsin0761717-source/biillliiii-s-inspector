@@ -31,6 +31,6 @@ test('cloud login and signup provide accessible password visibility controls',()
  assert.ok(html.includes('id="googleLogin" class="secondary google" type="button" disabled'));
  assert.ok(app.includes('dobara signup se nayi mail nahi aati'));
  assert.ok(app.includes("setAttribute('aria-label'"));
- assert.ok(app.includes("['recovery','signup','invite','magiclink'].includes(authType)"));
+ assert.ok(app.includes("['recovery','signup','invite','magiclink','email'].includes(authType)"));
  assert.ok(app.includes("showSignedIn(exchanged.user)"));
 });
