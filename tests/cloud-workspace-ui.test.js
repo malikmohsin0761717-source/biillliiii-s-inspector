@@ -59,6 +59,7 @@ test('reminders and alerts have human-friendly forms and permission-gated notifi
   assert.match(app, /async function scheduleReminderNotifications\(\)/);
   assert.match(app, /dueAt/);
   assert.match(app, /DocDetails/);
+  assert.match(app, /\['reminders','alerts','important','records','chats','stopped'\]/);
   assert.match(app, /DocDue/);
   assert.match(app, /new Notification\('Biillliiii Inspector reminder'/);
 });
