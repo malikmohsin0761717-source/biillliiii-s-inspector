@@ -152,6 +152,20 @@ function newConversation(mode) {
   chats[mode]={id:makeId(),title:mode==='teacher'?'New lesson':'New conversation',messages:[]};
   $('#'+mode+'History').value='';renderChat(mode);message($('#'+mode+'Message'),'Nayi conversation shuru ho gayi.');
 }
+async function deleteConversation(mode) {
+  const id=$('#'+mode+'History').value;
+  if(!id)return message($('#'+mode+'Message'),'Pehle history se conversation select karein.',true);
+  if(!window.confirm('Ye cloud conversation aur iski messages delete karni hain?'))return;
+  const button=$('#delete'+(mode==='chatbot'?'Chatbot':'Teacher'));button.disabled=true;
+  try{
+    await api('/api/cloud-ai?mode='+mode+'&id='+encodeURIComponent(id),{method:'DELETE'});
+    newConversation(mode);
+    await loadHistory(mode);
+    $('#'+mode+'History').value='';
+    message($('#'+mode+'Message'),'Conversation cloud history se delete ho gayi.');
+  }catch(e){message($('#'+mode+'Message'),e.message,true);}
+  finally{button.disabled=false;}
+}
 async function selectConversation(mode,id) {
   if(!id){newConversation(mode);return;}
   const item=histories[mode].find(c=>c.id===id);
@@ -247,9 +261,12 @@ async function loadDocumentsForView(view) {
     if(!docs.length)list.append(el('p','muted','Abhi koi saved item nahi.'));
     docs.forEach(doc=>{
       const card=el('article','item');const top=el('div','item-top');top.append(el('b','',doc.document_key.slice(prefix.length)));
+      const actions=el('div','item-actions');
+      const edit=el('button','secondary','Edit');edit.type='button';
+      edit.addEventListener('click',()=>{const keyInput=$('#'+view+'DocKey');const payloadInput=$('#'+view+'DocPayload');if(keyInput)keyInput.value=doc.document_key.slice(prefix.length);if(payloadInput)payloadInput.value=JSON.stringify(doc.payload,null,2);const saveForm=$('[data-panel="'+view+'"] .document-form');saveForm?.scrollIntoView({behavior:'smooth',block:'center'});});
       const del=el('button','delete','Delete');del.type='button';
       del.addEventListener('click',async()=>{if(!window.confirm('Sirf is cloud item ko delete karna hai?'))return;del.disabled=true;try{await api('/api/cloud-documents?type='+docType(view)+'&key='+encodeURIComponent(doc.document_key),{method:'DELETE'});await loadDocumentsForView(view);}catch(e){message($('#'+view+'DocMessage'),e.message,true);del.disabled=false;}});
-      top.append(del);const pre=el('pre','',JSON.stringify(doc.payload,null,2));card.append(top,pre);list.append(card);
+      actions.append(edit,del);top.append(actions);const pre=el('pre','',JSON.stringify(doc.payload,null,2));card.append(top,pre);list.append(card);
     });
     $('#statDocs').textContent=String(viewDocs.size);
   }catch(e){list.replaceChildren(el('p','muted',e.message));if(e.status===401)showSignedOut();}
@@ -308,7 +325,9 @@ $('#runInspection').addEventListener('click',runInspection);
 $('#chatbotForm').addEventListener('submit',event=>void sendChat('chatbot',event));
 $('#teacherForm').addEventListener('submit',event=>void sendChat('teacher',event));
 $('#newChatbot').addEventListener('click',()=>newConversation('chatbot'));
+$('#deleteChatbot').addEventListener('click',()=>void deleteConversation('chatbot'));
 $('#newTeacher').addEventListener('click',()=>newConversation('teacher'));
+$('#deleteTeacher').addEventListener('click',()=>void deleteConversation('teacher'));
 $('#chatbotHistory').addEventListener('change',event=>void selectConversation('chatbot',event.target.value));
 $('#teacherHistory').addEventListener('change',event=>void selectConversation('teacher',event.target.value));
 $('#saveProgress').addEventListener('click',saveProgress);
