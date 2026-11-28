@@ -1,0 +1,6 @@
+'use strict';
+const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const root=path.resolve(__dirname,'..');
+const api=fs.readFileSync(path.join(root,'api','cloud-ai.js'),'utf8');const sql=fs.readFileSync(path.join(root,'supabase','migrations','202611280001_cloud_ai_history.sql'),'utf8');
+test('cloud AI history requires same-origin owner session and keeps modes separate',()=>{assert.match(api,/assertSameOrigin\(req\)/);assert.match(api,/requireSession\(await getSession\(req,res\)\)/);assert.match(api,/new Set\(\['chatbot','teacher'\]\)/);assert.match(api,/mode=eq\.\$\{mode\}/);assert.doesNotMatch(api,/SUPABASE_SERVICE_ROLE_KEY|service_role/i);});
+test('cloud AI schema enforces owner-only RLS for histories and teacher progress',()=>{for(const table of ['ai_conversations','ai_teacher_progress']){assert.match(sql,new RegExp('alter table public\\.'+table+' enable row level security'));assert.match(sql,new RegExp(table+'_select_own'));assert.match(sql,new RegExp('auth\\.uid\\(\\)'));}assert.match(sql,/mode in \('chatbot','teacher'\)/);});
+test('cloud AI history validates message roles, content and limits',()=>{assert.match(api,/maximum 200 messages/);assert.match(api,/12000/);assert.match(api,/\['user','assistant'\]/);});
