@@ -64,11 +64,19 @@ function showRecoveryForm() {
   $('#password').value = ''; $('#confirmPassword').value = ''; $('#password').minLength = 12; $('#confirmPassword').minLength = 12; $('#password').required = true; $('#confirmPassword').required = true;
   message($('#authMessage'), 'Naya password 12–128 characters ka hona chahiye.');
 }
+async function loadAIProviderStatus(view){
+  const target=$('#'+view+'ProviderStatus');if(!target)return;
+  try{
+    const result=await api('/api/cloud-ai?mode=chatbot&resource=provider-status');
+    message(target,result.message,!result.enabled);
+  }catch(e){message(target,e.message,true);}
+}
 function showView(name) {
   $$('[data-panel]').forEach(panel => panel.classList.toggle('hidden', panel.dataset.panel !== name));
   $$('.nav-item').forEach(button => button.classList.toggle('active', button.dataset.view === name));
   if (name === 'projects') void loadProjects();
-  if (name === 'chatbot' || name === 'teacher') void loadHistory(name);
+  if (name === 'chatbot' || name === 'teacher') { void loadHistory(name); void loadAIProviderStatus(name); }
+  if (name === 'inspector') void loadAIProviderStatus(name);
   if (name === 'teacher') void loadProgress();
   if (name === 'reminders') void scheduleReminderNotifications();
   if (name === 'inspector') void loadProjects();
