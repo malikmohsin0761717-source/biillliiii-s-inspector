@@ -16,7 +16,7 @@ test('signup detects existing Supabase accounts instead of falsely promising ano
  assert.ok(route.includes('existingAccount'));
  assert.ok(route.includes('result.user?.identities'));
  assert.ok(app.includes('result.existingAccount'));
- assert.ok(app.includes('Forgot password se naya password set karein'));
+ assert.ok(route.includes('Forgot password se naya password set karein'));
 });
 test('password recovery sends a same-site redirect and retains the recovery session flow',()=>{
  assert.ok(route.includes('/auth/v1/recover?redirect_to='));
