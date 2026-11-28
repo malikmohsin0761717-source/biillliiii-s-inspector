@@ -19,6 +19,14 @@ test('signup detects existing Supabase accounts instead of falsely promising ano
  assert.ok(app.includes('setAuthMode(false)'));
  assert.ok(route.includes('Forgot password se naya password set karein'));
 });
+test('existing pending signups can explicitly request a fresh confirmation email',()=>{
+ assert.ok(route.includes("action === 'resend-confirmation'"));
+ assert.ok(route.includes("'/auth/v1/resend'"));
+ assert.ok(route.includes("type: 'signup'"));
+ assert.ok(html.includes('id="resendConfirmation"'));
+ assert.ok(app.includes("'/api/cloud-auth/resend-confirmation'"));
+ assert.ok(app.includes("$('#resendConfirmation').classList.remove('hidden')"));
+});
 test('password recovery sends a same-site redirect and retains the recovery session flow',()=>{
  assert.ok(route.includes('/auth/v1/recover?redirect_to='));
  assert.ok(route.includes('recovery-session'));
