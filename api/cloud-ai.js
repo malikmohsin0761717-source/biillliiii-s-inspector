@@ -1,6 +1,6 @@
 'use strict';
 const { assertSameOrigin, readBody, sendJson, supabaseRequest, getSession, requireSession } = require('./_lib/cloud-session');
-const MODES = new Set(['chatbot','teacher']);
+const MODES = new Set(['chatbot','teacher','analyst']);
 const { createResponse } = require('../ai-provider');
 const requestTimes = new Map();
 function clean(value,max,label){const s=String(value??'').trim();if(!s||s.length>max)throw Object.assign(new Error(label+' invalid hai.'),{status:400});return s;}
@@ -23,6 +23,7 @@ module.exports=async function(req,res){
    try{const result=await createResponse({mode,messages,apiKey:process.env.OPENAI_API_KEY,model:process.env.OPENAI_MODEL||'gpt-6-luna'});return sendJson(res,200,{ok:true,mode,message:result.message,model:result.model,requestId:result.requestId});}
    catch(error){return sendJson(res,error.status||502,{error:error.message||'AI response failed.',code:error.code||'AI_ERROR'});}
   }
+  if(mode==='analyst')return sendJson(res,405,{error:'AI Inspector mode only supports read-only response requests.'});
   const base='/rest/v1/ai_conversations';
   if(method==='GET'){const rows=await supabaseRequest(`${base}?select=conversation_id,title,messages,updated_at&mode=eq.${mode}&order=updated_at.desc&limit=100`,{headers:{Authorization:`Bearer ${session.accessToken}`}});return sendJson(res,200,{conversations:(rows||[]).map(r=>({id:r.conversation_id,title:r.title,messages:r.messages,updatedAt:r.updated_at}))});}
   if(method==='POST'){const b=readBody(req);const id=clean(b.id,40,'Conversation ID');if(!/^[a-f0-9-]{20,40}$/i.test(id))return sendJson(res,400,{error:'Conversation ID format invalid hai.'});const title=clean(b.title||'New conversation',120,'Title');const messages=validMessages(b.messages);const rows=await supabaseRequest(`${base}?on_conflict=owner_id,mode,conversation_id&select=conversation_id,title,messages,updated_at`,{method:'POST',headers:{Authorization:`Bearer ${session.accessToken}`,Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({mode,conversation_id:id,title,messages})});const r=rows[0];return sendJson(res,200,{conversation:r?{id:r.conversation_id,title:r.title,messages:r.messages,updatedAt:r.updated_at}:{id,title,messages}});}
