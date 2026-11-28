@@ -7,7 +7,8 @@ $SourceRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Files = @(
     'cloud-auth.js',
     'ui\app.js',
-    'ui\styles.css'
+    'ui\styles.css',
+    'monitoring\desktop-inspector.ps1'
 )
 $Preserve = @('data\projects.json', 'data\auth.json', '.env')
 
@@ -39,7 +40,7 @@ if ($SourceInfo.version -ne '11.0.1') { throw 'Patch source version target se ma
 foreach ($RelativePath in $Files) {
     if (-not (Test-Path -LiteralPath (Join-Path $SourceRoot $RelativePath) -PathType Leaf)) { throw "Patch file missing: $RelativePath" }
 }
-foreach ($RelativePath in @('cloud-auth.js','ui\app.js','ui\styles.css')) {
+foreach ($RelativePath in @('cloud-auth.js','ui\app.js','ui\styles.css','monitoring\desktop-inspector.ps1')) {
     if (-not (Test-Path -LiteralPath (Join-Path $TargetPath $RelativePath) -PathType Leaf)) { throw "Target code file missing: $RelativePath" }
 }
 
