@@ -232,20 +232,46 @@ function ensureDocumentEditor(view) {
   const host=$('[data-panel="'+view+'"] .document-editor');if(!host||host.dataset.ready)return;
   host.dataset.ready='1';
   const form=el('form','document-form');
-  const key=el('input');key.id=view+'DocKey';key.maxLength=120;key.required=true;key.placeholder='Title / unique key';
-  const keyLabel=el('label','','Title / key');keyLabel.append(key);
-  const payload=el('textarea');payload.id=view+'DocPayload';payload.rows=6;payload.value='{}';payload.required=true;
-  const payloadLabel=el('label','','JSON data');payloadLabel.append(payload);
+  const key=el('input');key.id=view+'DocKey';key.maxLength=120;key.required=true;key.placeholder='Title';
+  const keyLabel=el('label','','Title');keyLabel.append(key);
   const save=el('button','primary','Save item');save.type='submit';
   const status=el('p','message');status.id=view+'DocMessage';
   const list=el('div','items');list.id=view+'DocList';
-  form.append(keyLabel,payloadLabel,save);form.addEventListener('submit',async event=>{
+  const friendly=['reminders','alerts','important'].includes(view);
+  let payload,details,due,statusField;
+  if(friendly){
+    details=el('textarea');details.id=view+'DocDetails';details.rows=4;details.maxLength=5000;details.placeholder='Details / notes';
+    const detailsLabel=el('label','','Details');detailsLabel.append(details);
+    if(view==='reminders'||view==='alerts'){
+      due=el('input');due.id=view+'DocDue';due.type='datetime-local';
+      const dueLabel=el('label','',view==='reminders'?'Reminder time':'Alert time');dueLabel.append(due);
+    }
+    statusField=el('select');statusField.id=view+'DocStatus';
+    ['Open','In progress','Done'].forEach(v=>statusField.add(new Option(v,v)));
+    const statusLabel=el('label','','Status');statusLabel.append(statusField);
+    form.append(keyLabel,detailsLabel);
+    if(due)form.append(due.parentElement);
+    form.append(statusLabel,save);
+  }else{
+    payload=el('textarea');payload.id=view+'DocPayload';payload.rows=6;payload.value='{}';payload.required=true;
+    const payloadLabel=el('label','','JSON data');payloadLabel.append(payload);
+    form.append(keyLabel,payloadLabel,save);
+  }
+  form.addEventListener('submit',async event=>{
     event.preventDefault();save.disabled=true;
     try{
-      const data=JSON.parse(payload.value||'{}');if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('JSON data aik object hona chahiye.');
+      let data;
+      if(friendly){
+        data={title:key.value.trim(),details:details.value.trim(),status:statusField.value};
+        if(due?.value)data.dueAt=new Date(due.value).toISOString();
+      }else{
+        data=JSON.parse(payload.value||'{}');
+        if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('JSON data aik object hona chahiye.');
+      }
       const documentKey=docPrefix(view)+'-'+key.value.trim();
       await api('/api/cloud-documents',{method:'POST',body:JSON.stringify({documentType:docType(view),documentKey,payload:data})});
-      message(status,'Item save ho gaya.');await loadDocumentsForView(view);form.reset();payload.value='{}';
+      message(status,'Item save ho gaya.');await loadDocumentsForView(view);form.reset();if(payload)payload.value='{}';
+      if(view==='reminders')scheduleReminderNotifications();
     }catch(e){message(status,e.message,true);}finally{save.disabled=false;}
   });
   host.append(form,status,list);
@@ -266,10 +292,30 @@ async function loadDocumentsForView(view) {
       edit.addEventListener('click',()=>{const keyInput=$('#'+view+'DocKey');const payloadInput=$('#'+view+'DocPayload');if(keyInput)keyInput.value=doc.document_key.slice(prefix.length);if(payloadInput)payloadInput.value=JSON.stringify(doc.payload,null,2);const saveForm=$('[data-panel="'+view+'"] .document-form');saveForm?.scrollIntoView({behavior:'smooth',block:'center'});});
       const del=el('button','delete','Delete');del.type='button';
       del.addEventListener('click',async()=>{if(!window.confirm('Sirf is cloud item ko delete karna hai?'))return;del.disabled=true;try{await api('/api/cloud-documents?type='+docType(view)+'&key='+encodeURIComponent(doc.document_key),{method:'DELETE'});await loadDocumentsForView(view);}catch(e){message($('#'+view+'DocMessage'),e.message,true);del.disabled=false;}});
-      actions.append(edit,del);top.append(actions);const pre=el('pre','',JSON.stringify(doc.payload,null,2));card.append(top,pre);list.append(card);
+      actions.append(edit,del);top.append(actions);const pre=el('p','muted',doc.payload?.details||JSON.stringify(doc.payload,null,2));card.append(top,pre);if(doc.payload?.dueAt)card.append(el('small','',new Date(doc.payload.dueAt).toLocaleString()));if(doc.payload?.status)card.append(el('small','',doc.payload.status));list.append(card);
     });
     $('#statDocs').textContent=String(viewDocs.size);
   }catch(e){list.replaceChildren(el('p','muted',e.message));if(e.status===401)showSignedOut();}
+}
+const notifiedReminders=new Set();
+async function scheduleReminderNotifications(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{
+    const result=await api('/api/cloud-documents?type=reminders');
+    for(const doc of result.documents||[]){
+      const item=doc.payload||{};const when=Date.parse(item.dueAt||'');
+      if(!when||when>Date.now()||item.status==='Done'||notifiedReminders.has(doc.document_key))continue;
+      notifiedReminders.add(doc.document_key);
+      new Notification('Biillliiii Inspector reminder',{body:String(item.title||doc.document_key)+' — '+String(item.details||'')});
+    }
+  }catch(e){message($('#notificationMessage'),e.message,true);}
+}
+function enableNotifications(){
+  if(!('Notification' in window))return message($('#notificationMessage'),'Is browser mein notifications supported nahi hain.',true);
+  Notification.requestPermission().then(permission=>{
+    message($('#notificationMessage'),permission==='granted'?'Notifications enabled. Reminders app open honay par check hongi.':'Notifications permission allow nahi hui.',permission!=='granted');
+    if(permission==='granted')void scheduleReminderNotifications();
+  });
 }
 async function generateReport() {
   const button=$('#generateReport');button.disabled=true;
@@ -332,6 +378,8 @@ $('#chatbotHistory').addEventListener('change',event=>void selectConversation('c
 $('#teacherHistory').addEventListener('change',event=>void selectConversation('teacher',event.target.value));
 $('#saveProgress').addEventListener('click',saveProgress);
 $('#generateReport').addEventListener('click',generateReport);
+$('#enableNotifications').addEventListener('click',enableNotifications);
+window.setInterval(()=>{if(currentUser)void scheduleReminderNotifications();},60000);
 async function initialize() {
   try{
     const hash=new URLSearchParams(window.location.hash.slice(1));
