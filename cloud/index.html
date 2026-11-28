@@ -22,8 +22,8 @@
       <p class="muted">Apne Supabase account se sign in karein. Cloud login aapke local PC login se alag hai.</p>
       <form id="authForm">
         <label id="emailField">Email<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
-        <label id="passwordField">Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
-        <label id="confirmField" class="hidden">Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
+        <label id="passwordField">Password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required><button class="password-toggle" type="button" data-password-toggle="password" aria-label="Show password">Show</button></div></label>
+        <label id="confirmField" class="hidden">Confirm new password<div class="password-wrap"><input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Show confirmation password">Show</button></div></label>
         <button id="authSubmit" class="primary" type="submit">Log in</button>
       </form>
       <div class="auth-actions"><button id="toggleAuth" class="link" type="button">Create a cloud account</button><button id="forgotPassword" class="link" type="button">Forgot password?</button></div><button id="googleLogin" class="secondary google" type="button">Continue with Google</button>
