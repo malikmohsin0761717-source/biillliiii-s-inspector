@@ -42,6 +42,10 @@ test('cloud Inspector uses read-only analyst mode and selected project context',
 
 test('workspace tools use the owner-authenticated document API and bounded typed documents', () => {
   assert.match(app, /api\('\/api\/cloud-documents'/);
+  assert.match(app, /const edit=el\('button','secondary','Edit'\)/);
+  assert.match(app, /async function deleteConversation\(mode\)/);
+  assert.match(html, /id="deleteChatbot"/);
+  assert.match(html, /id="deleteTeacher"/);
   assert.match(docs, /assertSameOrigin/);
   assert.match(docs, /requireSession/);
   assert.match(docs, /ALLOWED_TYPES/);
