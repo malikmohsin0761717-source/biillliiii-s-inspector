@@ -56,6 +56,8 @@ test('local cloud and owner password fields include accessible show/hide control
   assert.match(app, /input\.type=reveal\?'text':'password'/);
   assert.match(app, /setAttribute\('aria-label'/);
   assert.match(app, /auth-password-wrap/);
+  assert.match(app, /auth\/smtp/);
+  assert.match(app, /2 emails per hour/);
 });
 
 test('local auth patch script backs up code, preserves user data and verifies before completion', () => {
