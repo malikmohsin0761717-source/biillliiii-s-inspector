@@ -279,11 +279,20 @@ async function handleAuthSubmit(event) {
     }
     if (currentAuthMode === 'cloud-signup') {
       const result = await api('/api/cloud-auth/signup', { method: 'POST', body: JSON.stringify(values) });
-      if (result.authenticated) {
+      if (result.existingAccount || result.confirmationRequired) {
+        showAuth('cloud-signin', result.existingAccount
+          ? 'Is email par account pehle se mojood hai. Dobara signup na karein; login karein ya verification email resend karein.'
+          : 'Account request process hui. Email confirmation ke baad login karein. Agar email nahi aayi to verification email resend karein.');
+        const emailInput=$('#authFields input[name="email"]');if(emailInput)emailInput.value=values.email||'';
+        const secondary=$('#authSecondaryActions');
+        if(secondary)secondary.insertAdjacentHTML('afterbegin','<button class="auth-link" type="button" data-auth-action="cloud-resend">Resend verification email</button>');
+      } else if (result.authenticated) {
         cloudAuthenticated = true; cloudAccountEmail = values.email || '';
         if (authenticated) { showDashboard('settings'); notify('Cloud account create aur connect ho gaya.'); }
         else showAuth(authConfigured ? 'signin' : 'setup', 'Cloud account create ho gaya. Local workspace ke liye Local Owner account setup/login karein.');
-      } else { showAuth('cloud-signin', 'Account ban gaya. Email confirmation ke baad login karein.'); }
+      } else {
+        showAuth('cloud-signin', 'Cloud signup response incomplete hai. Login ya password recovery try karein.');
+      }
       return;
     }
     if (currentAuthMode === 'cloud-recover') {
@@ -1064,6 +1073,17 @@ document.addEventListener('click', async (event) => {
   const authAction = event.target.closest('[data-auth-action]');
   if (authAction) {
     if (authAction.dataset.authAction === 'welcome') { showLanding(); return; }
+    if (authAction.dataset.authAction === 'cloud-resend') {
+      const email = String($('#authFields input[name="email"]')?.value || '').trim();
+      if (!email) { setAuthError('Pehle apna email address likhein.'); return; }
+      authAction.disabled = true;
+      try {
+        const result = await api('/api/cloud-auth/resend-confirmation', { method: 'POST', body: JSON.stringify({ email }) });
+        setAuthError(result.message || 'Verification email request process hui.');
+      } catch (error) { setAuthError(error.message); }
+      finally { if (authAction.isConnected) authAction.disabled = false; }
+      return;
+    }
     if (authAction.dataset.authAction === 'google-login') { window.location.href = '/api/cloud-auth/google'; return; }
     showAuth(authAction.dataset.authAction);
     return;
