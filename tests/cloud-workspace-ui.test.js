@@ -63,6 +63,15 @@ test('reminders and alerts have human-friendly forms and permission-gated notifi
   assert.match(app, /new Notification\('Biillliiii Inspector reminder'/);
 });
 
+test('AI tools show whether the server-side provider is configured without exposing secrets', () => {
+  assert.match(html, /chatbotProviderStatus/);
+  assert.match(html, /teacherProviderStatus/);
+  assert.match(html, /inspectorProviderStatus/);
+  assert.match(app, /resource=provider-status/);
+  assert.match(ai, /OPENAI_API_ENABLED==='true'/);
+  assert.match(ai, /Boolean\(process\.env\.OPENAI_API_KEY\)/);
+});
+
 test('cloud page does not pretend to remotely activate Windows monitoring', () => {
   assert.match(html, /Cloud connection: not paired/);
   assert.match(html, /local app se chalti hai/);
