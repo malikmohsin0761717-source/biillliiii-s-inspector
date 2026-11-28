@@ -7,8 +7,8 @@ $SourceRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Files = @(
     'cloud-auth.js',
     'ui\app.js',
-    'ui\styles.css',
-    )
+    'ui\styles.css'
+)
 $Preserve = @('data\projects.json', 'data\auth.json', '.env')
 
 function Get-RelativeHash([string]$Root, [string]$RelativePath) {
