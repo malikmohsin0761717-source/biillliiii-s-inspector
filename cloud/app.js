@@ -64,6 +64,11 @@ function showRecoveryForm() {
   $('#password').value = ''; $('#confirmPassword').value = ''; $('#password').minLength = 12; $('#confirmPassword').minLength = 12; $('#password').required = true; $('#confirmPassword').required = true;
   message($('#authMessage'), 'Naya password 12–128 characters ka hona chahiye.');
 }
+async function loadSettingsStatus(){
+  const target=$('#settingsAIStatus');if(!target)return;
+  try{const result=await api('/api/cloud-ai?mode=chatbot&resource=provider-status');message(target,result.enabled?'Cloud AI configured and ready.':'Cloud AI disabled: Vercel par server-side OPENAI_API_ENABLED aur OPENAI_API_KEY configure karna baqi hai.',!result.enabled);}
+  catch(e){message(target,e.message,true);}
+}
 async function loadAIProviderStatus(view){
   const target=$('#'+view+'ProviderStatus');if(!target)return;
   try{
@@ -77,6 +82,7 @@ function showView(name) {
   if (name === 'projects') void loadProjects();
   if (name === 'chatbot' || name === 'teacher') { void loadHistory(name); void loadAIProviderStatus(name); }
   if (name === 'inspector') void loadAIProviderStatus(name);
+  if (name === 'settings') void loadSettingsStatus();
   if (name === 'teacher') void loadProgress();
   if (name === 'reminders') void scheduleReminderNotifications();
   if (name === 'inspector') void loadProjects();
