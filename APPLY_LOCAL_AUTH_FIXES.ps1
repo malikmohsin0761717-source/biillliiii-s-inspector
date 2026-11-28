@@ -8,9 +8,7 @@ $Files = @(
     'cloud-auth.js',
     'ui\app.js',
     'ui\styles.css',
-    'tests\cloud-auth.test.js',
-    'tests\cloud-auth-email-ux.test.js'
-)
+    )
 $Preserve = @('data\projects.json', 'data\auth.json', '.env')
 
 function Get-RelativeHash([string]$Root, [string]$RelativePath) {
@@ -75,16 +73,18 @@ try {
         $Applied.Add($RelativePath)
     }
 
-    Push-Location $TargetPath
+    # The extracted patch repository contains the complete cloud/API test fixtures.
+    # Run its full suite there; the older local app folder is not a full repository checkout.
+    Push-Location $SourceRoot
     try {
         $CheckCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue
         if ($null -eq $CheckCommand) { throw 'npm.cmd nahi mila. Node.js/npm install check karein.' }
         Write-Host ''
-        Write-Host 'Syntax checks chal rahe hain...' -ForegroundColor Cyan
+        Write-Host 'Patch repository syntax checks chal rahe hain...' -ForegroundColor Cyan
         & npm.cmd run check
         $CheckExit = $LASTEXITCODE
         Write-Host ''
-        Write-Host 'Full test suite chal rahi hai...' -ForegroundColor Cyan
+        Write-Host 'Patch repository full test suite chal rahi hai...' -ForegroundColor Cyan
         & npm.cmd test
         $TestExit = $LASTEXITCODE
     } finally {
@@ -92,7 +92,20 @@ try {
     }
 
     if ($CheckExit -ne 0 -or $TestExit -ne 0) {
-        throw "Verification fail hui. Syntax exit=$CheckExit; tests exit=$TestExit."
+        throw "Patch repository verification fail hui. Syntax exit=$CheckExit; tests exit=$TestExit."
+    }
+
+    # Separately syntax-check the actual files copied into the local app.
+    Push-Location $TargetPath
+    try {
+        Write-Host ''
+        Write-Host 'Local target JavaScript syntax checks chal rahe hain...' -ForegroundColor Cyan
+        & node.exe --check '.\cloud-auth.js'
+        if ($LASTEXITCODE -ne 0) { throw 'Local cloud-auth.js syntax check fail hui.' }
+        & node.exe --check '.\ui\app.js'
+        if ($LASTEXITCODE -ne 0) { throw 'Local ui/app.js syntax check fail hui.' }
+    } finally {
+        Pop-Location
     }
 
     Write-Host ''
@@ -122,8 +135,9 @@ try {
     foreach ($RelativePath in $Applied) { $Report.Add("  $RelativePath") }
     $Report.Add('Preserved files (before => after SHA-256):')
     foreach ($RelativePath in $Preserve) { $Report.Add("  $RelativePath : $($PreserveBefore[$RelativePath]) => $($PreserveAfter[$RelativePath])") }
-    $Report.Add('Syntax checks: PASS')
-    $Report.Add('Full test suite: PASS')
+    $Report.Add('Patch repository syntax checks: PASS')
+    $Report.Add('Patch repository full test suite: PASS')
+    $Report.Add('Local target JavaScript syntax checks: PASS')
     $Report.Add('One-shot Windows snapshot: PASS')
     $Report.Add("Foreground process classification: $($Snapshot.activeApp)")
     $Report.Add("Desktop UIA privacy guard: $($DesktopCheck.status)")
