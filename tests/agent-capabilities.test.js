@@ -17,6 +17,8 @@ test('desktop UIA evidence parser accepts only explicit bounded status and text 
 test('desktop UIA script requires approved app names and excludes sensitive controls without reading values',()=>{
   const script=fs.readFileSync(path.join(root,'monitoring','desktop-inspector.ps1'),'utf8');
   assert.match(script,/ApprovedApps/);assert.match(script,/not-approved/);assert.match(script,/\$current\.IsPassword/i);
+  assert.match(script,/if \(\$allowed\.Count -eq 0\)[\s\S]*?Write-Result 'not-approved'[\s\S]*?exit 0/);
+  assert.ok(script.indexOf('if ($allowed.Count -eq 0)') < script.indexOf('[BIWindowInfo]::GetForegroundWindow()'));
   assert.match(script,/ControlType\.Text/);assert.doesNotMatch(script,/SendKeys|GetAsyncKeyState|Clipboard|Screenshot|WindowTitle/i);
 });
 
