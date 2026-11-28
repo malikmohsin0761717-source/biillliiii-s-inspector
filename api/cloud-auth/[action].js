@@ -46,7 +46,7 @@ module.exports = async function cloudAuthHandler(req, res) {
       return sendJson(res, 200, { authenticated: true, user });
     }
 
-    if (action === 'recovery-session' && method === 'POST') {
+    if ((action === 'recovery-session' || action === 'session-exchange') && method === 'POST') {
       const body = readBody(req);
       const accessToken = String(body.access_token || '');
       const refreshToken = String(body.refresh_token || '');
