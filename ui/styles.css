@@ -711,3 +711,5 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .alert-marker{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:rgba(244,196,119,.12)}
 .report-summary{display:grid;gap:16px}
 @media(max-width:760px){.inline-form{grid-template-columns:1fr}.reminder-row,.alert-row{align-items:flex-start;flex-direction:column}.reminder-row .settings-actions,.alert-row .settings-actions{width:100%}}
+
+.auth-password-wrap{display:flex;align-items:center;gap:8px;width:100%}.auth-password-wrap input{flex:1;min-width:0}.auth-password-wrap .auth-link{flex:0 0 auto;white-space:nowrap}
