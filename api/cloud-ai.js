@@ -15,6 +15,10 @@ module.exports=async function(req,res){
    if(method==='GET'){const rows=await supabaseRequest('/rest/v1/ai_teacher_progress?select=goals,completed_lessons,notes,updated_at&limit=1',{headers:{Authorization:`Bearer ${session.accessToken}`}});const r=rows[0]||{};return sendJson(res,200,{progress:{goals:r.goals||[],completedLessons:r.completed_lessons||[],notes:r.notes||'',updatedAt:r.updated_at||null}});}
    if(method==='PUT'){const b=readBody(req);const goals=Array.isArray(b.goals)?b.goals.slice(0,30).map(x=>clean(x,300,'Goal')):[];const lessons=Array.isArray(b.completedLessons)?b.completedLessons.slice(0,100).map(x=>clean(x,300,'Lesson')):[];const notes=String(b.notes||'').slice(0,5000);const rows=await supabaseRequest('/rest/v1/ai_teacher_progress?on_conflict=owner_id&select=goals,completed_lessons,notes,updated_at',{method:'POST',headers:{Authorization:`Bearer ${session.accessToken}`,Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({goals,completed_lessons:lessons,notes})});const r=rows[0]||{};return sendJson(res,200,{progress:{goals:r.goals||goals,completedLessons:r.completed_lessons||lessons,notes:r.notes??notes,updatedAt:r.updated_at||null}});}
   }
+  if(getQuery(req,'resource')==='provider-status' && method==='GET'){
+   const enabled=process.env.OPENAI_API_ENABLED==='true'&&Boolean(process.env.OPENAI_API_KEY);
+   return sendJson(res,200,{enabled,provider:enabled?'openai':'disabled',message:enabled?'Cloud AI ready hai.':'Cloud AI server configuration abhi complete nahi. Aapki history save ho sakti hai, AI response ke liye server-side API configuration zaroori hai.'});
+  }
   if(getQuery(req,'resource')==='respond' && method==='POST'){
    if(process.env.OPENAI_API_ENABLED!=='true'||!process.env.OPENAI_API_KEY)return sendJson(res,503,{error:'OpenAI disabled or server key missing. Koi API request nahi bheji gayi.',code:'AI_DISABLED'});
    const now=Date.now();const recent=(requestTimes.get(session.user.id)||[]).filter(t=>now-t<60000);if(recent.length>=10)return sendJson(res,429,{error:'AI request limit reached. 1 minute baad try karein.'});recent.push(now);requestTimes.set(session.user.id,recent);
