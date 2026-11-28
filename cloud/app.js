@@ -246,7 +246,7 @@ function ensureDocumentEditor(view) {
   const save=el('button','primary','Save item');save.type='submit';
   const status=el('p','message');status.id=view+'DocMessage';
   const list=el('div','items');list.id=view+'DocList';
-  const friendly=['reminders','alerts','important'].includes(view);
+  const friendly=['reminders','alerts','important','records','chats','stopped'].includes(view);
   let payload,details,due,statusField;
   if(friendly){
     details=el('textarea');details.id=view+'DocDetails';details.rows=4;details.maxLength=5000;details.placeholder='Details / notes';
