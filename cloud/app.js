@@ -316,12 +316,20 @@ $('#generateReport').addEventListener('click',generateReport);
 async function initialize() {
   try{
     const hash=new URLSearchParams(window.location.hash.slice(1));
-    const authType=hash.get('type');
-    if(['recovery','signup','invite','magiclink'].includes(authType)&&hash.get('access_token')&&hash.get('refresh_token')){
+    const query=new URLSearchParams(window.location.search);
+    const authType=hash.get('type')||query.get('type');
+    const tokenHash=query.get('token_hash');
+    if(tokenHash&&authType){
+      const exchanged=await api('/api/cloud-auth/session-exchange',{method:'POST',body:JSON.stringify({token_hash:tokenHash,type:authType})});
+      window.history.replaceState({},'','/');
+      if(authType==='recovery'){showRecoveryForm();return;}
+      showSignedIn(exchanged.user);message($('#authMessage'),'Email verify ho gaya. Aapka cloud account active hai.');return;
+    }
+    if(['recovery','signup','invite','magiclink','email'].includes(authType)&&hash.get('access_token')&&hash.get('refresh_token')){
       const exchanged=await api('/api/cloud-auth/session-exchange',{method:'POST',body:JSON.stringify({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:hash.get('expires_in')})});
       window.history.replaceState({},'','/');
       if(authType==='recovery'){showRecoveryForm();return;}
-      showSignedIn(exchanged.user);return;
+      showSignedIn(exchanged.user);message($('#authMessage'),'Email verify ho gaya. Aapka cloud account active hai.');return;
     }
     const status=await api('/api/cloud-auth/status');
     if(status.authenticated)showSignedIn(status.user);else showSignedOut();
