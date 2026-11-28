@@ -22,7 +22,7 @@ test('cloud authentication uses Supabase publishable key and server-side PKCE/se
 });
 
 test('cloud signup, email login, Google OAuth, password recovery and manual sync endpoints exist', () => {
-  for (const route of ['/api/cloud-auth/signup', '/api/cloud-auth/login', '/api/cloud-auth/google', '/api/cloud-auth/callback', '/api/cloud-auth/recover', '/api/cloud-auth/recovery-session', '/api/cloud-auth/update-password', '/api/cloud-auth/sync']) {
+  for (const route of ['/api/cloud-auth/signup', '/api/cloud-auth/login', '/api/cloud-auth/google', '/api/cloud-auth/callback', '/api/cloud-auth/recover', '/api/cloud-auth/recovery-session', '/api/cloud-auth/session-exchange', '/api/cloud-auth/resend-confirmation', '/api/cloud-auth/update-password', '/api/cloud-auth/sync']) {
     assert.ok(cloud.includes(route), `Missing ${route}`);
   }
   assert.match(app, /data-auth-action="google-login"/);
@@ -39,6 +39,16 @@ test('local cloud signup detects repeated accounts and can resend signup confirm
   assert.match(app, /result\.existingAccount \|\| result\.confirmationRequired/);
   assert.match(app, /data-auth-action="cloud-resend"/);
   assert.match(app, /\/api\/cloud-auth\/resend-confirmation/);
+});
+
+test('local signup verification and recovery callbacks exchange token hashes and use the actual browser host', () => {
+  assert.match(cloud, /req\.headers\.host/);
+  assert.match(cloud, /const origin = req\.headers\.host/);
+  assert.match(cloud, /\/auth\/v1\/verify/);
+  assert.match(cloud, /token_hash/);
+  assert.match(app, /authQuery\.get\('token_hash'\)/);
+  assert.match(app, /cloud-auth\/session-exchange/);
+  assert.match(app, /\['recovery','signup','invite','magiclink','email'\]/);
 });
 
 test('Supabase projects migration enables owner-scoped RLS for all CRUD operations', () => {
