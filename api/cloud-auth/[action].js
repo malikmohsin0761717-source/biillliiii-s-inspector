@@ -46,6 +46,18 @@ module.exports = async function cloudAuthHandler(req, res) {
       });
     }
 
+    if (action === 'resend-confirmation' && method === 'POST') {
+      const email = String(readBody(req).email || '').trim();
+      if (!validEmail(email)) return sendJson(res, 400, { error: 'Valid email address dein.' });
+      const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim()}://${String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim()}`;
+      if (!/^https:\/\//.test(origin)) return sendJson(res, 400, { error: 'Secure HTTPS origin required for email confirmation.' });
+      await supabaseRequest('/auth/v1/resend', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'signup', email, options: { emailRedirectTo: `${origin}/` } })
+      });
+      return sendJson(res, 200, { requested: true, message: 'Agar account ki email confirmation pending hai to naya verification email request kar diya gaya hai. Inbox aur Spam check karein.' });
+    }
+
     if (action === 'login' && method === 'POST') {
       const body = readBody(req);
       const result = await supabaseRequest('/auth/v1/token?grant_type=password', {
