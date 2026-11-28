@@ -52,6 +52,17 @@ test('workspace tools use the owner-authenticated document API and bounded typed
   assert.match(docs, /1024 \* 1024/);
 });
 
+test('reminders and alerts have human-friendly forms and permission-gated notifications', () => {
+  assert.match(html, /id="enableNotifications"/);
+  assert.match(app, /function enableNotifications\(\)/);
+  assert.match(app, /Notification\.requestPermission\(\)/);
+  assert.match(app, /async function scheduleReminderNotifications\(\)/);
+  assert.match(app, /dueAt/);
+  assert.match(app, /DocDetails/);
+  assert.match(app, /DocDue/);
+  assert.match(app, /new Notification\('Biillliiii Inspector reminder'/);
+});
+
 test('cloud page does not pretend to remotely activate Windows monitoring', () => {
   assert.match(html, /Cloud connection: not paired/);
   assert.match(html, /local app se chalti hai/);
