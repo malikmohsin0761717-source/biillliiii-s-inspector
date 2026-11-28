@@ -241,6 +241,10 @@ async function saveProgress() {
   finally{button.disabled=false;}
 }
 const viewDocs = new Map();
+const editingDocumentKeys = new Map();
+function updateDocumentCount(){
+  $('#statDocs').textContent=String(Array.from(viewDocs.values()).reduce((total,items)=>total+items.length,0));
+}
 function docPrefix(view){return view==='records'?'records':view==='chats'?'chats':view==='important'?'important':view==='stopped'?'stopped':view==='reminders'?'reminders':view==='alerts'?'alerts':view==='reports'?'reports':'settings';}
 function docType(view){return view==='important'?'important':view==='reminders'?'reminders':view==='alerts'?'alerts':view==='settings'?'settings':'workspace';}
 function ensureDocumentEditor(view) {
@@ -284,9 +288,14 @@ function ensureDocumentEditor(view) {
         if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('JSON data aik object hona chahiye.');
       }
       const documentKey=docPrefix(view)+'-'+key.value.trim();
+      const previousKey=editingDocumentKeys.get(view);
       await api('/api/cloud-documents',{method:'POST',body:JSON.stringify({documentType:docType(view),documentKey,payload:data})});
-      message(status,'Item save ho gaya.');await loadDocumentsForView(view);form.reset();if(payload)payload.value='{}';
-      if(view==='reminders')scheduleReminderNotifications();
+      if(previousKey&&previousKey!==documentKey){
+        await api('/api/cloud-documents?type='+docType(view)+'&key='+encodeURIComponent(previousKey),{method:'DELETE'});
+      }
+      editingDocumentKeys.delete(view);save.textContent='Save item';
+      message(status,'Item save/update ho gaya.');await loadDocumentsForView(view);form.reset();if(payload)payload.value='{}';
+      if(view==='reminders')void scheduleReminderNotifications();
     }catch(e){message(status,e.message,true);}finally{save.disabled=false;}
   });
   host.append(form,status,list);
@@ -309,15 +318,19 @@ async function loadDocumentsForView(view) {
         if(keyInput)keyInput.value=doc.document_key.slice(prefix.length);
         if(payloadInput)payloadInput.value=JSON.stringify(doc.payload,null,2);
         const detailInput=$('#'+view+'DocDetails');if(detailInput)detailInput.value=doc.payload?.details||'';
-        const dueInput=$('#'+view+'DocDue');if(dueInput)dueInput.value=doc.payload?.dueAt?new Date(doc.payload.dueAt).toISOString().slice(0,16):'';
+        const dueInput=$('#'+view+'DocDue');
+        if(dueInput&&doc.payload?.dueAt){const date=new Date(doc.payload.dueAt);const pad=n=>String(n).padStart(2,'0');dueInput.value=date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'T'+pad(date.getHours())+':'+pad(date.getMinutes());}
+        else if(dueInput)dueInput.value='';
         const statusInput=$('#'+view+'DocStatus');if(statusInput)statusInput.value=doc.payload?.status||'Open';
+        editingDocumentKeys.set(view,doc.document_key);
+        const saveButton=$('[data-panel="'+view+'"] .document-form button[type="submit"]');if(saveButton)saveButton.textContent='Update item';
         const saveForm=$('[data-panel="'+view+'"] .document-form');saveForm?.scrollIntoView({behavior:'smooth',block:'center'});
       });
       const del=el('button','delete','Delete');del.type='button';
       del.addEventListener('click',async()=>{if(!window.confirm('Sirf is cloud item ko delete karna hai?'))return;del.disabled=true;try{await api('/api/cloud-documents?type='+docType(view)+'&key='+encodeURIComponent(doc.document_key),{method:'DELETE'});await loadDocumentsForView(view);}catch(e){message($('#'+view+'DocMessage'),e.message,true);del.disabled=false;}});
       actions.append(edit,del);top.append(actions);const pre=el('p','muted',doc.payload?.details||JSON.stringify(doc.payload,null,2));card.append(top,pre);if(doc.payload?.dueAt)card.append(el('small','',new Date(doc.payload.dueAt).toLocaleString()));if(doc.payload?.status)card.append(el('small','',doc.payload.status));list.append(card);
     });
-    $('#statDocs').textContent=String(viewDocs.size);
+    updateDocumentCount();
   }catch(e){list.replaceChildren(el('p','muted',e.message));if(e.status===401)showSignedOut();}
 }
 const notifiedReminders=new Set();
@@ -354,9 +367,14 @@ async function generateReport() {
   finally{button.disabled=false;}
 }
 async function initializeWorkspace() {
-  await loadProjects();
-  await Promise.all(['records','chats','important','stopped','reminders','alerts','reports','settings'].map(loadDocumentsForView));
+  await Promise.all([
+    loadProjects(),
+    loadHistory('chatbot'),
+    loadHistory('teacher'),
+    ...['records','chats','important','stopped','reminders','alerts','reports','settings'].map(loadDocumentsForView)
+  ]);
   $('#statChats').textContent=String(histories.chatbot.length+histories.teacher.length);
+  void scheduleReminderNotifications();
 }
 $('#authForm').addEventListener('submit',async event=>{
   event.preventDefault();const button=$('#authSubmit');button.disabled=true;
