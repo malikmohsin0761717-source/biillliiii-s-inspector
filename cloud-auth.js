@@ -92,7 +92,7 @@ async function handle(req, res, url, readBody, json) {
     const email = String(body.email || '').trim();
     const password = String(body.password || '');
     if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 12) return json(res, 400, { error: 'Valid email aur kam az kam 12 characters ka password dein.' });
-    const result = await request('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password }) });
+    const result = await request('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${url.origin}/` } }) });
     if (result.access_token) saveSession(res, result);
     return json(res, 201, { created: true, authenticated: Boolean(result.access_token), confirmationRequired: !result.access_token, message: result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation link bhej diya gaya hai.' });
   }
@@ -123,7 +123,7 @@ async function handle(req, res, url, readBody, json) {
   if (req.method === 'POST' && p === '/api/cloud-auth/recover') {
     const body = await readBody(req);
     const email = String(body.email || '').trim();
-    await request('/auth/v1/recover', { method: 'POST', body: JSON.stringify({ email }) });
+    await request(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${url.origin}/`)}`, { method: 'POST', body: JSON.stringify({ email }) });
     return json(res, 200, { sent: true, message: 'Agar email account mojood hai to password reset email bhej di gayi hai.' });
   }
   if (req.method === 'POST' && p === '/api/cloud-auth/logout') {

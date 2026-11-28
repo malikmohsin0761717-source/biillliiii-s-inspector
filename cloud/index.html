@@ -5,56 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101827">
   <meta name="description" content="Biillliiii Inspector secure cloud workspace">
-  <title>Biillliiii Inspector · Cloud Workspace</title>
+  <title>Biillliiii Inspector</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <main class="shell">
+  <main class="shell shell-wide">
     <header class="top">
-      <div class="brand"><span class="mark">B</span><div><strong>Biillliiii Inspector</strong><small>SECURE CLOUD WORKSPACE</small></div></div>
+      <div class="brand"><span class="mark">B</span><div><strong>Biillliiii Inspector</strong><small>PRIVATE OWNER WORKSPACE</small></div></div>
       <span class="privacy">Supabase Auth · Owner-only RLS</span>
     </header>
-
     <section id="authPanel" class="panel auth">
-      <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
-      <h1 id="authTitle">Cloud sign in</h1>
+      <p class="eyebrow">YOUR PRIVATE WORKSPACE</p><h1 id="authTitle">Cloud sign in</h1>
       <p class="muted">Apne Supabase account se sign in karein. Cloud login aapke local PC login se alag hai.</p>
       <form id="authForm">
         <label id="emailField">Email<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
-        <label id="passwordField">Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label>
-        <label id="confirmField" class="hidden">Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
+        <label id="passwordField">Password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" minlength="1" maxlength="128" required><button class="password-toggle" type="button" data-password-toggle="password" aria-label="Show password">Show</button></div></label>
+        <label id="confirmField" class="hidden">Confirm new password<div class="password-wrap"><input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Show confirmation password">Show</button></div></label>
         <button id="authSubmit" class="primary" type="submit">Log in</button>
       </form>
-      <div class="auth-actions"><button id="toggleAuth" class="link" type="button">Create a cloud account</button><button id="forgotPassword" class="link" type="button">Forgot password?</button></div><button id="googleLogin" class="secondary google" type="button">Continue with Google</button>
+      <div class="auth-actions"><button id="toggleAuth" class="link" type="button">Create a cloud account</button><button id="forgotPassword" class="link" type="button">Forgot password?</button></div>
+      <button id="googleLogin" class="secondary google" type="button" disabled aria-describedby="googleLoginNote">Google login not enabled</button><p id="googleLoginNote" class="small-note">Supabase mein Google provider abhi enable nahi hai. Filhal email aur password se login karein.</p>
       <p id="authMessage" class="message" role="status" aria-live="polite"></p>
     </section>
-
     <section id="workspacePanel" class="hidden">
       <div class="welcome panel">
-        <div><p class="eyebrow">SIGNED-IN CLOUD ACCOUNT</p><h1>Cloud workspace</h1><p id="accountEmail" class="muted"></p></div>
+        <div><p class="eyebrow">SIGNED-IN CLOUD ACCOUNT</p><h1>Biillliiii Inspector</h1><p id="accountEmail" class="muted"></p></div>
         <button id="logoutButton" class="secondary" type="button">Log out</button>
       </div>
-      <div class="notice"><strong>Privacy boundary:</strong> Is page par sirf woh data save hota hai jo aap khud yahan add karein. Local projects, AI chat histories, Windows monitoring aur local files automatic upload nahi hotin.</div>
-      <div class="columns">
-        <section class="panel">
-          <div class="panel-heading"><div><p class="eyebrow">SUPABASE STORAGE</p><h2>Workspace documents</h2></div><span class="tag">RLS protected</span></div>
-          <label>Document type<select id="documentType"><option value="workspace">Workspace</option><option value="reminders">Reminders</option><option value="important">Important notes</option><option value="alerts">Alerts</option><option value="settings">Settings</option></select></label>
-          <label>Document key<input id="documentKey" maxlength="120" placeholder="e.g. my-workspace"></label>
-          <label>JSON payload<textarea id="documentPayload" rows="8" spellcheck="false">{}</textarea></label>
-          <button id="saveDocument" class="primary" type="button">Save document</button>
-          <p id="documentMessage" class="message" role="status" aria-live="polite"></p>
-          <div class="panel-heading list-heading"><h3>Saved documents</h3><button id="refreshDocuments" class="link" type="button">Refresh</button></div>
-          <div id="documentsList" class="items"><p class="muted">Loading…</p></div>
-        </section>
-        <section class="panel">
-          <div class="panel-heading"><div><p class="eyebrow">EXISTING CLOUD DATA</p><h2>Projects</h2></div><span class="tag">Read only</span></div>
-          <p class="muted">Yeh list Supabase ke projects table se aati hai. Is screen se local project data import ya overwrite nahi hota.</p>
-          <button id="refreshProjects" class="secondary" type="button">Load my cloud projects</button>
-          <div id="projectsList" class="items"><p class="muted">Projects abhi load nahi huay.</p></div>
-        </section>
+      <div class="notice"><strong>Privacy boundary:</strong> Cloud par sirf aapka selected data save hota hai. Local PC monitoring aur local files automatically upload nahi hotin.</div>
+      <div class="workspace-layout">
+        <nav class="sidebar" aria-label="Workspace sections">
+          <button class="nav-item active" data-view="home">Home</button>
+          <button class="nav-item" data-view="projects">Projects</button>
+          <button class="nav-item" data-view="inspector">AI Project Inspector</button>
+          <button class="nav-item" data-view="chatbot">AI Chatbot</button>
+          <button class="nav-item" data-view="teacher">AI Teacher</button>
+          <button class="nav-item" data-view="records">Records</button>
+          <button class="nav-item" data-view="chats">Chats</button>
+          <button class="nav-item" data-view="monitoring">Live Monitoring</button>
+          <button class="nav-item" data-view="important">Important</button>
+          <button class="nav-item" data-view="stopped">Stopped</button>
+          <button class="nav-item" data-view="reminders">Reminders</button>
+          <button class="nav-item" data-view="alerts">Alerts</button>
+          <button class="nav-item" data-view="reports">Reports</button>
+          <button class="nav-item" data-view="settings">Settings</button>
+        </nav>
+        <main class="content">
+          <section class="view" data-panel="home">
+            <div class="panel"><p class="eyebrow">OVERVIEW</p><h2>Workspace dashboard</h2><p class="muted">Apne projects, AI tools aur workspace records yahan manage karein.</p><div class="stats-grid"><article class="stat"><b id="statProjects">—</b><span>Projects</span></article><article class="stat"><b id="statChats">—</b><span>AI conversations</span></article><article class="stat"><b id="statDocs">—</b><span>Saved workspace items</span></article></div></div>
+            <div class="panel"><h3>System boundaries</h3><p class="muted">Cloud AI ke liye server par OpenAI explicitly enabled hona zaroori hai. Windows Live Monitoring aapke apne PC par local app se chalti hai; cloud website aapke PC ko remotely start nahi karti.</p></div>
+          </section>
+          <section class="view hidden" data-panel="projects">
+            <div class="panel"><div class="panel-heading"><div><p class="eyebrow">PROJECT MANAGEMENT</p><h2>Projects</h2></div><button id="refreshProjects" class="secondary" type="button">Refresh</button></div>
+              <form id="projectForm" class="form-grid"><label>Project ID<input id="projectId" maxlength="64" placeholder="BI-0001" required></label><label>Project name<input id="projectName" maxlength="120" required></label><label>Status<select id="projectStatus"><option>Planning</option><option>Active</option><option>Paused</option><option>Completed</option><option>Stopped</option></select></label><label>Goal<input id="projectGoal" maxlength="1000"></label><button class="primary" type="submit">Save project</button></form><p id="projectMessage" class="message" role="status"></p><div id="projectsList" class="items"></div>
+            </div>
+          </section>
+          <section class="view hidden" data-panel="inspector">
+            <div class="panel"><p class="eyebrow">READ-ONLY ANALYSIS</p><h2>AI Project Inspector</h2><label>Select project<select id="inspectorProject"><option value="">Choose a project</option></select></label><label>Inspection question<textarea id="inspectionPrompt" rows="3">Is project ki progress, missing work, risks aur next steps review karein.</textarea></label><button id="runInspection" class="primary" type="button">Inspect project</button><p id="inspectionMessage" class="message" role="status"></p><article id="inspectionResult" class="response"></article></div>
+          </section>
+          <section class="view hidden" data-panel="chatbot">
+            <div class="panel"><p class="eyebrow">GENERAL ASSISTANT</p><h2>AI Chatbot</h2><div class="chat-toolbar"><select id="chatbotHistory" aria-label="Chatbot history"><option value="">New conversation</option></select><button id="newChatbot" class="secondary" type="button">New chat</button><button id="deleteChatbot" class="delete" type="button">Delete selected</button></div><div id="chatbotMessages" class="chat-messages"></div><form id="chatbotForm" class="chat-form"><textarea id="chatbotInput" rows="3" maxlength="12000" placeholder="Apna sawal likhein..." required></textarea><button class="primary" type="submit">Send</button></form><p id="chatbotMessage" class="message" role="status"></p></div>
+          </section>
+          <section class="view hidden" data-panel="teacher">
+            <div class="panel"><p class="eyebrow">BEGINNER-FRIENDLY LEARNING</p><h2>AI Teacher</h2><div class="chat-toolbar"><select id="teacherHistory" aria-label="Teacher history"><option value="">New lesson</option></select><button id="newTeacher" class="secondary" type="button">New lesson</button><button id="deleteTeacher" class="delete" type="button">Delete selected</button></div><div id="teacherMessages" class="chat-messages"></div><form id="teacherForm" class="chat-form"><textarea id="teacherInput" rows="3" maxlength="12000" placeholder="Aaj kya seekhna hai?" required></textarea><button class="primary" type="submit">Send</button></form><p id="teacherMessage" class="message" role="status"></p></div>
+            <div class="panel"><h3>Learning progress</h3><label>Goals (har line aik goal)<textarea id="teacherGoals" rows="3"></textarea></label><label>Completed lessons (har line aik lesson)<textarea id="teacherLessons" rows="3"></textarea></label><label>Teacher notes<textarea id="teacherNotes" rows="3" maxlength="5000"></textarea></label><button id="saveProgress" class="primary" type="button">Save learning progress</button><p id="progressMessage" class="message" role="status"></p></div>
+          </section>
+          <section class="view hidden" data-panel="records"><div class="panel"><h2>Records</h2><p class="muted">Apne structured records ko cloud workspace mein save karein.</p><div class="document-editor" data-doc-type="workspace" data-prefix="records"></div></div></section>
+          <section class="view hidden" data-panel="chats"><div class="panel"><h2>Chats</h2><p class="muted">Yahan aap manually saved chat notes rakhein. AI Chatbot aur Teacher ki histories unke apne sections mein alag rehti hain.</p><div class="document-editor" data-doc-type="workspace" data-prefix="chats"></div></div></section>
+          <section class="view hidden" data-panel="monitoring">
+            <div class="panel"><p class="eyebrow">LOCAL WINDOWS MONITOR</p><h2>Live Monitoring</h2><div class="status-row"><span class="status-dot"></span><b>Cloud connection: not paired</b></div><p class="muted">Privacy ki wajah se browser cloud site aapke Windows PC ke processes, CPU/RAM ya desktop ko khud se read nahi kar sakti. Local monitoring existing PC app mein available hai.</p><a class="primary link-button" href="http://127.0.0.1:4177" target="_blank" rel="noopener noreferrer">Open local Inspector on this PC</a><p class="small-note">Agar local app ka port change hua ho to apne local app ka current address use karein. Remote pairing/agent install is page se automatically nahi hota.</p></div>
+          </section>
+          <section class="view hidden" data-panel="important"><div class="panel"><h2>Important</h2><div class="document-editor" data-doc-type="important" data-prefix="important"></div></div></section>
+          <section class="view hidden" data-panel="stopped"><div class="panel"><h2>Stopped</h2><div class="document-editor" data-doc-type="workspace" data-prefix="stopped"></div></div></section>
+          <section class="view hidden" data-panel="reminders"><div class="panel"><h2>Reminders</h2><div class="document-editor" data-doc-type="reminders" data-prefix="reminders"></div></div></section>
+          <section class="view hidden" data-panel="alerts"><div class="panel"><h2>Alerts</h2><div class="document-editor" data-doc-type="alerts" data-prefix="alerts"></div></div></section>
+          <section class="view hidden" data-panel="reports"><div class="panel"><h2>Reports</h2><p class="muted">Project status aur workspace ka report generate karein.</p><button id="generateReport" class="primary" type="button">Generate project report</button><div id="reportResult" class="response"></div><div class="document-editor" data-doc-type="workspace" data-prefix="reports"></div></div></section>
+          <section class="view hidden" data-panel="settings"><div class="panel"><h2>Settings</h2><div class="document-editor" data-doc-type="settings" data-prefix="settings"></div><p class="small-note">Cloud AI activation server-side configuration hai. API key kabhi browser mein enter ya store na karein.</p></div></section>
+        </main>
       </div>
-      <footer>Local Windows monitoring aur local-first app apne PC par alag chalti rahegi. Cloud deployment unhein remotely start nahi karta.</footer>
+      <footer>Biillliiii Inspector · Cloud data owner-scoped hai. Local files aur Windows monitoring local hi rehti hain.</footer>
     </section>
   </main>
 </body>

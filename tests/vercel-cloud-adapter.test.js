@@ -57,9 +57,11 @@ test('document API enforces allowlisted types, JSON objects and 1 MiB payloads',
   assert.doesNotMatch(documents, /chatbot_history|teacher_history/);
 });
 
-test('cloud page offers explicit document saves and does not auto-sync private histories', () => {
-  assert.match(page, /Workspace documents/);
-  assert.match(page, /AI chat histories.*automatic/i);
+test('cloud page exposes explicit owner-selected sections without automatic local data sync', () => {
+  assert.match(page, /Records/);
+  assert.match(page, /AI Chatbot/);
+  assert.match(page, /Live Monitoring/);
+  assert.match(page, /Cloud par sirf aapka selected data save hota hai/);
   assert.match(client, /\/api\/cloud-documents/);
   assert.doesNotMatch(client, /chatbot_history|teacher_history/);
 });

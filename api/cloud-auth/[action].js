@@ -30,7 +30,9 @@ module.exports = async function cloudAuthHandler(req, res) {
       const email = String(body.email || '').trim();
       const password = String(body.password || '');
       if (!validEmail(email) || password.length < 12 || password.length > 128) return sendJson(res, 400, { error: 'Valid email aur 12–128 characters ka password dein.' });
-      const result = await supabaseRequest('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password }) });
+      const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim()}://${String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim()}`;
+      if (!/^https:\/\//.test(origin)) return sendJson(res, 400, { error: 'Secure HTTPS origin required for email confirmation.' });
+      const result = await supabaseRequest('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${origin}/` } }) });
       if (result.access_token) saveSession(res, result);
       return sendJson(res, 201, { created: true, authenticated: Boolean(result.access_token), confirmationRequired: !result.access_token, message: result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation link bhej diya gaya hai.' });
     }
@@ -44,13 +46,27 @@ module.exports = async function cloudAuthHandler(req, res) {
       return sendJson(res, 200, { authenticated: true, user });
     }
 
-    if (action === 'recovery-session' && method === 'POST') {
+    if ((action === 'recovery-session' || action === 'session-exchange') && method === 'POST') {
       const body = readBody(req);
-      const accessToken = String(body.access_token || '');
-      const refreshToken = String(body.refresh_token || '');
-      if (!accessToken || !refreshToken) return sendJson(res, 400, { error: 'Recovery link incomplete hai.' });
-      const user = await supabaseRequest('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
-      const sessionUser = saveSession(res, { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user });
+      let result;
+      const tokenHash = String(body.token_hash || '');
+      if (tokenHash) {
+        const type = String(body.type || '');
+        if (!['signup','invite','magiclink','recovery','email'].includes(type) || tokenHash.length > 512) {
+          return sendJson(res, 400, { error: 'Email confirmation link invalid hai.' });
+        }
+        result = await supabaseRequest('/auth/v1/verify', {
+          method: 'POST', body: JSON.stringify({ token_hash: tokenHash, type })
+        });
+      } else {
+        const accessToken = String(body.access_token || '');
+        const refreshToken = String(body.refresh_token || '');
+        if (!accessToken || !refreshToken) return sendJson(res, 400, { error: 'Confirmation/recovery link incomplete hai.' });
+        const user = await supabaseRequest('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
+        result = { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user };
+      }
+      if (!result.access_token || !result.refresh_token) return sendJson(res, 400, { error: 'Email link verify hua lekin session receive nahi hua. Dobara link request karein.' });
+      const sessionUser = saveSession(res, result);
       return sendJson(res, 200, { authenticated: true, user: sessionUser });
     }
 
@@ -65,7 +81,9 @@ module.exports = async function cloudAuthHandler(req, res) {
     if (action === 'recover' && method === 'POST') {
       const email = String(readBody(req).email || '').trim();
       if (!validEmail(email)) return sendJson(res, 400, { error: 'Valid email address dein.' });
-      await supabaseRequest('/auth/v1/recover', { method: 'POST', body: JSON.stringify({ email }) });
+      const origin = `${String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim()}://${String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim()}`;
+      if (!/^https:\/\//.test(origin)) return sendJson(res, 400, { error: 'Secure HTTPS origin required for password recovery.' });
+      await supabaseRequest(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${origin}/`)}`, { method: 'POST', body: JSON.stringify({ email }) });
       return sendJson(res, 200, { sent: true, message: 'Agar email account mojood hai to reset email bhej di gayi hai.' });
     }
 
