@@ -51,7 +51,7 @@ function setAuthMode(signup) {
   $('#password').minLength = signup ? 12 : 1;
   $('#confirmPassword').minLength = 12;
   $('#password').value = ''; $('#confirmPassword').value = '';
-  $('#toggleAuth').classList.remove('hidden'); $('#forgotPassword').classList.toggle('hidden', signup);
+  $('#toggleAuth').classList.remove('hidden'); $('#forgotPassword').classList.toggle('hidden', signup); $('#resendConfirmation').classList.add('hidden');
   $('#authMessage').textContent = ''; $('#password').required = true; $('#confirmPassword').required = false;
 }
 function showRecoveryForm() {
@@ -390,9 +390,11 @@ $('#authForm').addEventListener('submit',async event=>{
     if(signupMode&&result.existingAccount){
       const info=result.message||'Account pehle se mojood hai. Log in ya Forgot password use karein.';
       setAuthMode(false);
-      message($('#authMessage'),info,true);
+      $('#resendConfirmation').classList.remove('hidden');
+      message($('#authMessage'),info+' Agar email confirm nahi hui to neeche Resend verification email dabayein.',true);
     }else if(signupMode&&result.confirmationRequired){
-      message($('#authMessage'),'Account request process hui. Inbox aur spam folder check karein. Agar email na aaye to SMTP delivery configuration check karni hogi.');
+      $('#resendConfirmation').classList.remove('hidden');
+      message($('#authMessage'),'Account request process hui. Inbox aur spam folder check karein. Zaroorat par neeche se confirmation email dobara request karein.');
     }else{
       const status=await api('/api/cloud-auth/status');
       if(status.authenticated)showSignedIn(status.user);
@@ -407,6 +409,14 @@ document.addEventListener('click',event=>{
   toggle.setAttribute('aria-label',(reveal?'Hide ':'Show ')+(toggle.dataset.passwordToggle==='password'?'password':'confirmation password'));
 });
 $('#toggleAuth').addEventListener('click',()=>setAuthMode(!signupMode));
+$('#resendConfirmation').addEventListener('click',async()=>{
+  const email=$('#email').value.trim();
+  if(!email)return message($('#authMessage'),'Pehle apna account email likhein.',true);
+  const button=$('#resendConfirmation');button.disabled=true;
+  try{const result=await api('/api/cloud-auth/resend-confirmation',{method:'POST',body:JSON.stringify({email})});message($('#authMessage'),result.message||'Verification email request process hui.');}
+  catch(e){message($('#authMessage'),e.message,true);}
+  finally{button.disabled=false;}
+});
 $('#forgotPassword').addEventListener('click',async()=>{
   const email=$('#email').value.trim();if(!email)return message($('#authMessage'),'Pehle email address likhein.',true);
   try{await api('/api/cloud-auth/recover',{method:'POST',body:JSON.stringify({email})});message($('#authMessage'),'Agar account mojood hai to password reset email request process hui.');}
