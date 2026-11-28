@@ -93,8 +93,27 @@ async function handle(req, res, url, readBody, json) {
     const password = String(body.password || '');
     if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 12) return json(res, 400, { error: 'Valid email aur kam az kam 12 characters ka password dein.' });
     const result = await request('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${url.origin}/` } }) });
+    const existingAccount = Array.isArray(result.user?.identities) && result.user.identities.length === 0;
     if (result.access_token) saveSession(res, result);
-    return json(res, 201, { created: true, authenticated: Boolean(result.access_token), confirmationRequired: !result.access_token, message: result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation link bhej diya gaya hai.' });
+    return json(res, existingAccount ? 200 : 201, {
+      created: !existingAccount && Boolean(result.user),
+      existingAccount,
+      authenticated: Boolean(result.access_token),
+      confirmationRequired: !existingAccount && !result.access_token,
+      message: existingAccount
+        ? 'Is email par cloud account pehle se mojood hai. Log in karein ya Forgot password use karein.'
+        : result.access_token ? 'Cloud account create ho gaya.' : 'Email confirmation request process hui.'
+    });
+  }
+  if (req.method === 'POST' && p === '/api/cloud-auth/resend-confirmation') {
+    const body = await readBody(req);
+    const email = String(body.email || '').trim();
+    if (!/^\\S+@\\S+\\.\\S+$/.test(email)) return json(res, 400, { error: 'Valid email address dein.' });
+    await request('/auth/v1/resend', {
+      method: 'POST',
+      body: JSON.stringify({ type: 'signup', email, options: { emailRedirectTo: `${url.origin}/` } })
+    });
+    return json(res, 200, { requested: true, message: 'Agar account ki email confirmation pending hai to verification email dobara request kar diya gaya hai. Inbox aur Spam check karein.' });
   }
   if (req.method === 'POST' && p === '/api/cloud-auth/login') {
     const body = await readBody(req);
