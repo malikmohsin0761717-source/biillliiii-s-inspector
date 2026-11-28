@@ -73,6 +73,15 @@ test('AI tools show whether the server-side provider is configured without expos
   assert.match(ai, /Boolean\(process\.env\.OPENAI_API_KEY\)/);
 });
 
+test('Settings provides safe direct links for SMTP, auth security and server-only AI configuration', () => {
+  assert.match(html, /auth\/smtp/);
+  assert.match(html, /environment-variables/);
+  assert.match(html, /OPENAI_API_ENABLED=true/);
+  assert.match(html, /settingsAIStatus/);
+  assert.match(app, /async function loadSettingsStatus\(\)/);
+  assert.match(html, /leaked-password protection/);
+});
+
 test('cloud page does not pretend to remotely activate Windows monitoring', () => {
   assert.match(html, /Cloud connection: not paired/);
   assert.match(html, /local app se chalti hai/);
