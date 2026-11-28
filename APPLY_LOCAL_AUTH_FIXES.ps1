@@ -88,6 +88,21 @@ try {
         throw "Verification fail hui. Syntax exit=$CheckExit; tests exit=$TestExit."
     }
 
+    Write-Host ''
+    Write-Host 'One-shot Windows monitoring snapshot test...' -ForegroundColor Cyan
+    $SnapshotRaw = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $TargetPath 'monitoring\windows-snapshot.ps1')
+    if ($LASTEXITCODE -ne 0) { throw 'Windows snapshot PowerShell script fail hui.' }
+    $Snapshot = ($SnapshotRaw -join "`n") | ConvertFrom-Json
+    if ($null -eq $Snapshot -or -not ($Snapshot.PSObject.Properties.Name -contains 'activeApp')) { throw 'Windows snapshot output invalid hai.' }
+
+    Write-Host 'Desktop UIA privacy guard test (empty approved-app list)...' -ForegroundColor Cyan
+    $DesktopRaw = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $TargetPath 'monitoring\desktop-inspector.ps1') -ApprovedApps ''
+    if ($LASTEXITCODE -ne 0) { throw 'Desktop UIA privacy guard script fail hui.' }
+    $DesktopCheck = ($DesktopRaw -join "`n") | ConvertFrom-Json
+    if ($null -eq $DesktopCheck -or @('not-approved','blocked','unsupported') -notcontains [string]$DesktopCheck.status) {
+        throw 'Desktop UIA privacy guard returned an unexpected status.'
+    }
+
     $PreserveAfter = @{}
     foreach ($RelativePath in $Preserve) { $PreserveAfter[$RelativePath] = Get-RelativeHash $TargetPath $RelativePath }
 
@@ -102,11 +117,16 @@ try {
     foreach ($RelativePath in $Preserve) { $Report.Add("  $RelativePath : $($PreserveBefore[$RelativePath]) => $($PreserveAfter[$RelativePath])") }
     $Report.Add('Syntax checks: PASS')
     $Report.Add('Full test suite: PASS')
+    $Report.Add('One-shot Windows snapshot: PASS')
+    $Report.Add("Foreground process classification: $($Snapshot.activeApp)")
+    $Report.Add("Desktop UIA privacy guard: $($DesktopCheck.status)")
     $Report | Set-Content -LiteralPath (Join-Path $BackupRoot 'APPLY_REPORT.txt') -Encoding UTF8
 
     Write-Host ''
     Write-Host 'PATCH APPLY AUR VERIFICATION SUCCESSFUL' -ForegroundColor Green
     Write-Host "Backup: $BackupRoot"
+    Write-Host "Windows snapshot: PASS ($($Snapshot.activeApp))" -ForegroundColor Green
+    Write-Host "Desktop UIA privacy guard: PASS ($($DesktopCheck.status))" -ForegroundColor Green
     Write-Host 'data/projects.json, data/auth.json aur .env patch script ne copy ya overwrite nahi ki.'
 } catch {
     Write-Host ''
