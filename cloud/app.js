@@ -48,6 +48,8 @@ function setAuthMode(signup) {
   $('#passwordField').firstChild.textContent = 'Password';
   $('#confirmField').classList.add('hidden');
   $('#password').autocomplete = signup ? 'new-password' : 'current-password';
+  $('#password').minLength = signup ? 12 : 1;
+  $('#confirmPassword').minLength = 12;
   $('#password').value = ''; $('#confirmPassword').value = '';
   $('#toggleAuth').classList.remove('hidden'); $('#forgotPassword').classList.toggle('hidden', signup);
   $('#authMessage').textContent = ''; $('#password').required = true; $('#confirmPassword').required = false;
@@ -59,7 +61,7 @@ function showRecoveryForm() {
   $('#googleLogin').classList.add('hidden'); $('#passwordField').classList.remove('hidden');
   $('#passwordField').firstChild.textContent = 'New password'; $('#confirmField').classList.remove('hidden');
   $('#authSubmit').textContent = 'Update password'; $('#toggleAuth').classList.add('hidden'); $('#forgotPassword').classList.add('hidden');
-  $('#password').value = ''; $('#confirmPassword').value = ''; $('#password').required = true; $('#confirmPassword').required = true;
+  $('#password').value = ''; $('#confirmPassword').value = ''; $('#password').minLength = 12; $('#confirmPassword').minLength = 12; $('#password').required = true; $('#confirmPassword').required = true;
   message($('#authMessage'), 'Naya password 12–128 characters ka hona chahiye.');
 }
 function showView(name) {
@@ -275,9 +277,9 @@ $('#authForm').addEventListener('submit',async event=>{
       recoveryMode=false;setAuthMode(false);message($('#authMessage'),'Password update ho gaya. Ab naye password se login karein.');return;
     }
     const result=await api(signupMode?'/api/cloud-auth/signup':'/api/cloud-auth/login',{method:'POST',body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});
-    if(signupMode&&result.confirmationRequired)message($('#authMessage'),'Confirmation email request process hui. Inbox aur spam folder check karein; email provider ki delivery settings bhi zaroori hain.');
+    if(signupMode&&result.confirmationRequired)message($('#authMessage'),'Signup request process hui. Agar is email par pehle se account hai to dobara signup se nayi mail nahi aati — Log in ya Forgot password use karein. Naye account ke liye inbox aur spam folder check karein.');
     else {const status=await api('/api/cloud-auth/status');if(status.authenticated)showSignedIn(status.user);}
-  }catch(e){message($('#authMessage'),e.message,true);}
+  }catch(e){const friendly=/invalid login credentials/i.test(e.message)?'Email ya password match nahi hua. Password yaad nahi to Forgot password use karein.':e.message;message($('#authMessage'),friendly,true);}
   finally{button.disabled=false;}
 });
 document.addEventListener('click',event=>{
@@ -287,7 +289,6 @@ document.addEventListener('click',event=>{
   toggle.setAttribute('aria-label',(reveal?'Hide ':'Show ')+(toggle.dataset.passwordToggle==='password'?'password':'confirmation password'));
 });
 $('#toggleAuth').addEventListener('click',()=>setAuthMode(!signupMode));
-$('#googleLogin').addEventListener('click',()=>{window.location.href='/api/cloud-auth/google';});
 $('#forgotPassword').addEventListener('click',async()=>{
   const email=$('#email').value.trim();if(!email)return message($('#authMessage'),'Pehle email address likhein.',true);
   try{await api('/api/cloud-auth/recover',{method:'POST',body:JSON.stringify({email})});message($('#authMessage'),'Agar account mojood hai to password reset email request process hui.');}
