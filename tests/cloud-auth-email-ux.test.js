@@ -16,6 +16,9 @@ test('password recovery sends a same-site redirect and retains the recovery sess
  assert.ok(route.includes('/auth/v1/recover?redirect_to='));
  assert.ok(route.includes('recovery-session'));
  assert.ok(route.includes('session-exchange'));
+ assert.ok(route.includes("/auth/v1/verify"));
+ assert.ok(route.includes('token_hash'));
+ assert.ok(app.includes("query.get('token_hash')"));
  assert.ok(route.includes('update-password'));
  assert.ok(local.includes('/auth/v1/recover?redirect_to='));
 });
