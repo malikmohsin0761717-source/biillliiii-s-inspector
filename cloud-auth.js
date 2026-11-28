@@ -83,6 +83,9 @@ async function logout(req, res) {
 
 async function handle(req, res, url, readBody, json) {
   const p = url.pathname;
+  // The server validates Host against localhost/127.0.0.1 and the active port.
+  // Use that exact browser origin so email callbacks return to the address the user opened.
+  const origin = req.headers.host ? `http://${String(req.headers.host).toLowerCase()}` : url.origin;
   if (req.method === 'GET' && p === '/api/cloud-auth/status') {
     const session = currentSession(req);
     return json(res, 200, { configured: config().configured, authenticated: Boolean(session), user: session?.user || null, provider: 'supabase' });
@@ -92,7 +95,7 @@ async function handle(req, res, url, readBody, json) {
     const email = String(body.email || '').trim();
     const password = String(body.password || '');
     if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 12) return json(res, 400, { error: 'Valid email aur kam az kam 12 characters ka password dein.' });
-    const result = await request('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${url.origin}/` } }) });
+    const result = await request('/auth/v1/signup', { method: 'POST', body: JSON.stringify({ email, password, options: { emailRedirectTo: `${origin}/` } }) });
     const existingAccount = Array.isArray(result.user?.identities) && result.user.identities.length === 0;
     if (result.access_token) saveSession(res, result);
     return json(res, existingAccount ? 200 : 201, {
@@ -111,7 +114,7 @@ async function handle(req, res, url, readBody, json) {
     if (!/^\\S+@\\S+\\.\\S+$/.test(email)) return json(res, 400, { error: 'Valid email address dein.' });
     await request('/auth/v1/resend', {
       method: 'POST',
-      body: JSON.stringify({ type: 'signup', email, options: { emailRedirectTo: `${url.origin}/` } })
+      body: JSON.stringify({ type: 'signup', email, options: { emailRedirectTo: `${origin}/` } })
     });
     return json(res, 200, { requested: true, message: 'Agar account ki email confirmation pending hai to verification email dobara request kar diya gaya hai. Inbox aur Spam check karein.' });
   }
@@ -152,7 +155,7 @@ async function handle(req, res, url, readBody, json) {
   if (req.method === 'POST' && p === '/api/cloud-auth/recover') {
     const body = await readBody(req);
     const email = String(body.email || '').trim();
-    await request(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${url.origin}/`)}`, { method: 'POST', body: JSON.stringify({ email }) });
+    await request(`/auth/v1/recover?redirect_to=${encodeURIComponent(`${origin}/`)}`, { method: 'POST', body: JSON.stringify({ email }) });
     return json(res, 200, { sent: true, message: 'Agar email account mojood hai to password reset email bhej di gayi hai.' });
   }
   if (req.method === 'POST' && p === '/api/cloud-auth/logout') {
@@ -168,7 +171,7 @@ async function handle(req, res, url, readBody, json) {
     const flowToken = randomToken();
     flows.set(flowToken, { verifier, state, createdAt: Date.now() });
     setCookie(res, OAUTH_COOKIE, flowToken, 600, 'Lax');
-    const redirect = `${url.origin}/api/cloud-auth/callback`;
+    const redirect = `${origin}/api/cloud-auth/callback`;
     const target = `${c.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=s256&state=${encodeURIComponent(state)}`;
     res.writeHead(302, { Location: target, 'Cache-Control': 'no-store' }); res.end(); return;
   }
