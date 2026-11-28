@@ -58,7 +58,7 @@ test('document API enforces allowlisted types, JSON objects and 1 MiB payloads',
 });
 
 test('cloud page offers explicit document saves and does not auto-sync private histories', () => {
-  assert.match(page, /Workspace documents/);
+  assert.match(page, /Records/);\n  assert.match(page, /AI Chatbot/);\n  assert.match(page, /Live Monitoring/);\n  assert.match(page, /Cloud par sirf aapka selected data save hota hai/);
   assert.match(page, /AI chat histories.*automatic/i);
   assert.match(client, /\/api\/cloud-documents/);
   assert.doesNotMatch(client, /chatbot_history|teacher_history/);
