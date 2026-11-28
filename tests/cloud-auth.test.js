@@ -30,6 +30,17 @@ test('cloud signup, email login, Google OAuth, password recovery and manual sync
   assert.match(app, /Existing matching cloud project codes will be updated/);
 });
 
+test('local cloud signup detects repeated accounts and can resend signup confirmation', () => {
+  assert.match(cloud, /existingAccount/);
+  assert.match(cloud, /result\.user\?\.identities/);
+  assert.match(cloud, /\/api\/cloud-auth\/resend-confirmation/);
+  assert.match(cloud, /\/auth\/v1\/resend/);
+  assert.match(cloud, /type: 'signup'/);
+  assert.match(app, /result\.existingAccount \|\| result\.confirmationRequired/);
+  assert.match(app, /data-auth-action="cloud-resend"/);
+  assert.match(app, /\/api\/cloud-auth\/resend-confirmation/);
+});
+
 test('Supabase projects migration enables owner-scoped RLS for all CRUD operations', () => {
   assert.match(sql, /enable row level security/i);
   assert.match(sql, /revoke all on table public\.projects from anon, authenticated/i);
