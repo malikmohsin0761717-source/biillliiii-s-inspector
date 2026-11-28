@@ -15,6 +15,7 @@ test('hosted signup sends a same-site email confirmation redirect',()=>{
 test('password recovery sends a same-site redirect and retains the recovery session flow',()=>{
  assert.ok(route.includes('/auth/v1/recover?redirect_to='));
  assert.ok(route.includes('recovery-session'));
+ assert.ok(route.includes('session-exchange'));
  assert.ok(route.includes('update-password'));
  assert.ok(local.includes('/auth/v1/recover?redirect_to='));
 });
@@ -27,4 +28,6 @@ test('cloud login and signup provide accessible password visibility controls',()
  assert.ok(html.includes('id="googleLogin" class="secondary google" type="button" disabled'));
  assert.ok(app.includes('dobara signup se nayi mail nahi aati'));
  assert.ok(app.includes("setAttribute('aria-label'"));
+ assert.ok(app.includes("['recovery','signup','invite','magiclink'].includes(authType)"));
+ assert.ok(app.includes("showSignedIn(exchanged.user)"));
 });
