@@ -316,9 +316,12 @@ $('#generateReport').addEventListener('click',generateReport);
 async function initialize() {
   try{
     const hash=new URLSearchParams(window.location.hash.slice(1));
-    if(hash.get('type')==='recovery'&&hash.get('access_token')&&hash.get('refresh_token')){
-      await api('/api/cloud-auth/recovery-session',{method:'POST',body:JSON.stringify({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:hash.get('expires_in')})});
-      window.history.replaceState({},'','/');showRecoveryForm();return;
+    const authType=hash.get('type');
+    if(['recovery','signup','invite','magiclink'].includes(authType)&&hash.get('access_token')&&hash.get('refresh_token')){
+      const exchanged=await api('/api/cloud-auth/session-exchange',{method:'POST',body:JSON.stringify({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:hash.get('expires_in')})});
+      window.history.replaceState({},'','/');
+      if(authType==='recovery'){showRecoveryForm();return;}
+      showSignedIn(exchanged.user);return;
     }
     const status=await api('/api/cloud-auth/status');
     if(status.authenticated)showSignedIn(status.user);else showSignedOut();
