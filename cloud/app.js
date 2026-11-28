@@ -165,7 +165,18 @@ $('#authForm').addEventListener('submit', async (event) => {
   finally { button.disabled = false; }
 });
 
-document.addEventListener('click', (event) => {\n  const toggle = event.target.closest('[data-password-toggle]');\n  if (!toggle) return;\n  const input = document.getElementById(toggle.dataset.passwordToggle);\n  if (!input) return;\n  const reveal = input.type === 'password';\n  input.type = reveal ? 'text' : 'password';\n  toggle.textContent = reveal ? 'Hide' : 'Show';\n  toggle.setAttribute('aria-label', `${reveal ? 'Hide' : 'Show'} ${toggle.dataset.passwordToggle === 'password' ? 'password' : 'confirmation password'}`);\n});\n\n$('#toggleAuth').addEventListener('click', () => setAuthMode(!signupMode));
+document.addEventListener('click', (event) => {
+  const toggle = event.target.closest('[data-password-toggle]');
+  if (!toggle) return;
+  const input = document.getElementById(toggle.dataset.passwordToggle);
+  if (!input) return;
+  const reveal = input.type === 'password';
+  input.type = reveal ? 'text' : 'password';
+  toggle.textContent = reveal ? 'Hide' : 'Show';
+  toggle.setAttribute('aria-label', `${reveal ? 'Hide' : 'Show'} ${toggle.dataset.passwordToggle === 'password' ? 'password' : 'confirmation password'}`);
+});
+
+$('#toggleAuth').addEventListener('click', () => setAuthMode(!signupMode));
 $('#googleLogin').addEventListener('click', () => { window.location.href = '/api/cloud-auth/google'; });
 $('#forgotPassword').addEventListener('click', async () => {
   const email = $('#email').value.trim();
