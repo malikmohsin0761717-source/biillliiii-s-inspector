@@ -10,6 +10,13 @@ $allowed = @()
 if (-not [string]::IsNullOrWhiteSpace($ApprovedApps)) {
     $allowed = @($ApprovedApps.Split(',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ })
 }
+
+# With no explicitly approved apps, return before inspecting even the foreground process.
+# This is the safest default and keeps the empty-allowlist verification independent of UIA/Win32.
+if ($allowed.Count -eq 0) {
+    Write-Result 'not-approved' 'Unknown' '' 'No approved apps configured; UIA inspection skipped.'
+    exit 0
+}
 $blocked = @('logonui','lockapp','credentialuibroker','1password','keepass','bitwarden','lastpass','dashlane','authy','nordpass','outlook','olk','thunderbird','hxoutlook','windowsmail','paytm','phonepe','easypaisa','jazzcash','hbl','meezan','ubl','banking','bank')
 $hwnd = [IntPtr]::Zero
 $processName = 'Unknown'
