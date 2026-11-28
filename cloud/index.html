@@ -81,7 +81,19 @@
           <section class="view hidden" data-panel="reminders"><div class="panel"><h2>Reminders</h2><p class="muted">Due date set karein. App open ho aur notifications allowed hon to reminder time par alert dega.</p><button id="enableNotifications" class="secondary" type="button">Enable browser notifications</button><p id="notificationMessage" class="message" role="status"></p><div class="document-editor" data-doc-type="reminders" data-prefix="reminders"></div></div></section>
           <section class="view hidden" data-panel="alerts"><div class="panel"><h2>Alerts</h2><p class="muted">Apne important alerts save karein aur unki status track karein.</p><div class="document-editor" data-doc-type="alerts" data-prefix="alerts"></div></div></section>
           <section class="view hidden" data-panel="reports"><div class="panel"><h2>Reports</h2><p class="muted">Project status aur workspace ka report generate karein.</p><button id="generateReport" class="primary" type="button">Generate project report</button><div id="reportResult" class="response"></div><div class="document-editor" data-doc-type="workspace" data-prefix="reports"></div></div></section>
-          <section class="view hidden" data-panel="settings"><div class="panel"><h2>Settings</h2><div class="document-editor" data-doc-type="settings" data-prefix="settings"></div><p class="small-note">Cloud AI activation server-side configuration hai. API key kabhi browser mein enter ya store na karein.</p></div></section>
+          <section class="view hidden" data-panel="settings">
+            <div class="panel"><h2>Settings</h2><p class="muted">Account aur cloud services ki configuration status.</p>
+              <h3>Email delivery</h3><p class="muted">Signup confirmation aur password reset email ke liye Supabase custom SMTP configure karein. SMTP password sirf Supabase Dashboard mein enter karein; ChatGPT ya browser app mein share na karein.</p>
+              <a class="link-button secondary" href="https://supabase.com/dashboard/project/bvfxuagbnkzutcyzgjap/auth/smtp" target="_blank" rel="noopener noreferrer">Open Supabase SMTP settings</a>
+              <p class="small-note">Allowed redirect URL mein https://biillliiii-inspector-cloud-app.vercel.app/** hona chahiye. Default Supabase mail sirf authorized team addresses ko bhej sakta hai.</p>
+              <h3>AI services</h3><p id="settingsAIStatus" class="message" role="status">AI configuration check nahi hui.</p>
+              <a class="link-button secondary" href="https://vercel.com/mohsin-a228/biillliiii-inspector-cloud-app/settings/environment-variables" target="_blank" rel="noopener noreferrer">Open Vercel environment variables</a>
+              <p class="small-note">Server-side variables: OPENAI_API_ENABLED=true aur OPENAI_API_KEY. API key ko kabhi frontend settings ya chat mein paste na karein.</p>
+              <h3>Security</h3><p class="muted">Supabase Authentication settings mein leaked-password protection enable karein. Email provider ke liye email confirmation enabled rakhein.</p>
+              <a class="link-button secondary" href="https://supabase.com/dashboard/project/bvfxuagbnkzutcyzgjap/auth/providers" target="_blank" rel="noopener noreferrer">Open Supabase Auth settings</a>
+            </div>
+            <div class="panel"><h3>Saved settings notes</h3><div class="document-editor" data-doc-type="settings" data-prefix="settings"></div></div>
+          </section>
         </main>
       </div>
       <footer>Biillliiii Inspector · Cloud data owner-scoped hai. Local files aur Windows monitoring local hi rehti hain.</footer>
