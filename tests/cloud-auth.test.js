@@ -51,6 +51,13 @@ test('local signup verification and recovery callbacks exchange token hashes and
   assert.match(app, /\['recovery','signup','invite','magiclink','email'\]/);
 });
 
+test('local cloud and owner password fields include accessible show/hide controls', () => {
+  assert.match(app, /data-password-toggle/);
+  assert.match(app, /input\.type=reveal\?'text':'password'/);
+  assert.match(app, /setAttribute\('aria-label'/);
+  assert.match(app, /auth-password-wrap/);
+});
+
 test('Supabase projects migration enables owner-scoped RLS for all CRUD operations', () => {
   assert.match(sql, /enable row level security/i);
   assert.match(sql, /revoke all on table public\.projects from anon, authenticated/i);
