@@ -40,7 +40,9 @@ if ($SourceInfo.version -ne '11.0.1') { throw 'Patch source version target se ma
 
 foreach ($RelativePath in $Files) {
     if (-not (Test-Path -LiteralPath (Join-Path $SourceRoot $RelativePath) -PathType Leaf)) { throw "Patch file missing: $RelativePath" }
-    if (-not (Test-Path -LiteralPath (Join-Path $TargetPath $RelativePath) -PathType Leaf)) { throw "Target file missing: $RelativePath" }
+}
+foreach ($RelativePath in @('cloud-auth.js','ui\app.js','ui\styles.css')) {
+    if (-not (Test-Path -LiteralPath (Join-Path $TargetPath $RelativePath) -PathType Leaf)) { throw "Target code file missing: $RelativePath" }
 }
 
 $Stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -51,6 +53,7 @@ $PreserveBefore = @{}
 foreach ($RelativePath in $Preserve) { $PreserveBefore[$RelativePath] = Get-RelativeHash $TargetPath $RelativePath }
 
 $BackedUp = New-Object System.Collections.Generic.List[string]
+$Created = New-Object System.Collections.Generic.List[string]
 $Applied = New-Object System.Collections.Generic.List[string]
 try {
     foreach ($RelativePath in $Files) {
@@ -59,8 +62,12 @@ try {
         $BackupFile = Join-Path $BackupRoot $RelativePath
         $BackupDirectory = Split-Path -Parent $BackupFile
         New-Item -ItemType Directory -Path $BackupDirectory -Force | Out-Null
-        Copy-Item -LiteralPath $TargetFile -Destination $BackupFile -Force
-        $BackedUp.Add($RelativePath)
+        if (Test-Path -LiteralPath $TargetFile -PathType Leaf) {
+            Copy-Item -LiteralPath $TargetFile -Destination $BackupFile -Force
+            $BackedUp.Add($RelativePath)
+        } else {
+            $Created.Add($RelativePath)
+        }
         Copy-Item -LiteralPath $SourceFile -Destination $TargetFile -Force
         $SourceHash = (Get-FileHash -LiteralPath $SourceFile -Algorithm SHA256).Hash
         $TargetHash = (Get-FileHash -LiteralPath $TargetFile -Algorithm SHA256).Hash
@@ -137,6 +144,10 @@ try {
         if (Test-Path -LiteralPath $BackupFile -PathType Leaf) {
             Copy-Item -LiteralPath $BackupFile -Destination (Join-Path $TargetPath $RelativePath) -Force
         }
+    }
+    foreach ($RelativePath in $Created) {
+        $CreatedFile = Join-Path $TargetPath $RelativePath
+        if (Test-Path -LiteralPath $CreatedFile -PathType Leaf) { Remove-Item -LiteralPath $CreatedFile -Force }
     }
     Write-Host "Code rollback complete. Backup: $BackupRoot" -ForegroundColor Yellow
     throw
