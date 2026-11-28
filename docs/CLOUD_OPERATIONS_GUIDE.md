@@ -13,11 +13,12 @@ Open Authentication → URL Configuration:
 
 1. Set Site URL to `https://biillliiii-inspector-cloud-app.vercel.app/`.
 2. Add `https://biillliiii-inspector-cloud-app.vercel.app/**` to Redirect URLs.
+3. For local PC testing, also add `http://localhost:4177/**` and `http://127.0.0.1:4177/**`. If using the older local dev port, add `http://localhost:3000/**` too.
 3. Keep email confirmation enabled.
 
 ## Email delivery
 
-Supabase's built-in SMTP is for development only. It can restrict recipients to organization-authorized addresses and has a low hourly limit.
+Supabase's built-in SMTP is best-effort and limited to 2 emails per hour. It can restrict recipients to organization-authorized addresses. Use custom SMTP for dependable production delivery.
 
 1. Create/choose a transactional email provider (for example Resend, Brevo, Postmark, or AWS SES).
 2. Verify a sending domain and configure its SPF/DKIM records with the DNS provider.
