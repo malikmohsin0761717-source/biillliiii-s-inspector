@@ -121,13 +121,23 @@ async function handle(req, res, url, readBody, json) {
     const user = saveSession(res, result);
     return json(res, 200, { authenticated: true, user });
   }
-  if (req.method === 'POST' && p === '/api/cloud-auth/recovery-session') {
+  if (req.method === 'POST' && (p === '/api/cloud-auth/recovery-session' || p === '/api/cloud-auth/session-exchange')) {
     const body = await readBody(req);
-    const accessToken = String(body.access_token || '');
-    const refreshToken = String(body.refresh_token || '');
-    if (!accessToken || !refreshToken) return json(res, 400, { error: 'Recovery link incomplete hai.' });
-    const user = await request('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
-    const sessionUser = saveSession(res, { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user });
+    let result;
+    const tokenHash = String(body.token_hash || '');
+    if (tokenHash) {
+      const type = String(body.type || '');
+      if (!['signup','invite','magiclink','recovery','email'].includes(type) || tokenHash.length > 512) return json(res, 400, { error: 'Email verification link invalid hai.' });
+      result = await request('/auth/v1/verify', { method: 'POST', body: JSON.stringify({ token_hash: tokenHash, type }) });
+    } else {
+      const accessToken = String(body.access_token || '');
+      const refreshToken = String(body.refresh_token || '');
+      if (!accessToken || !refreshToken) return json(res, 400, { error: 'Confirmation/recovery link incomplete hai.' });
+      const user = await request('/auth/v1/user', { headers: { Authorization: `Bearer ${accessToken}` } });
+      result = { access_token: accessToken, refresh_token: refreshToken, expires_in: Number(body.expires_in || 3600), user };
+    }
+    if (!result.access_token || !result.refresh_token) return json(res, 400, { error: 'Email link verify hua lekin session receive nahi hua. Dobara email request karein.' });
+    const sessionUser = saveSession(res, result);
     return json(res, 200, { authenticated: true, user: sessionUser });
   }
   if (req.method === 'POST' && p === '/api/cloud-auth/update-password') {
