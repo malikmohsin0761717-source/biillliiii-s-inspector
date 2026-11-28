@@ -84,6 +84,16 @@ test('Settings provides safe direct links for SMTP, auth security and server-onl
   assert.match(html, /leaked-password protection/);
 });
 
+test('cloud document edits preserve the original record when renaming and keep local reminder time', () => {
+  assert.match(app, /const editingDocumentKeys = new Map\(\)/);
+  assert.match(app, /if\(previousKey&&previousKey!==documentKey\)/);
+  assert.match(app, /editingDocumentKeys\.delete\(view\)/);
+  assert.match(app, /date\.getFullYear\(\).*date\.getHours\(\)/);
+  assert.match(app, /function updateDocumentCount\(\)/);
+  assert.match(app, /loadHistory\('chatbot'\)/);
+  assert.match(app, /loadHistory\('teacher'\)/);
+});
+
 test('cloud page does not pretend to remotely activate Windows monitoring', () => {
   assert.match(html, /Cloud connection: not paired/);
   assert.match(html, /local app se chalti hai/);
