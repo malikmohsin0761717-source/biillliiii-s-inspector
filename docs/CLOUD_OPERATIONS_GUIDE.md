@@ -26,7 +26,7 @@ Supabase's built-in SMTP is for development only. It can restrict recipients to 
 5. Keep SMTP credentials only in Supabase settings. Never put them in browser code or chat.
 6. Test a password recovery email to an account you control; verify Inbox and Spam.
 
-A repeated signup for an already registered email does not create another account or guarantee a new confirmation email. Use Log in or Forgot password. Passwords are never sent in email.
+A repeated signup for an already registered email does not create another account or guarantee a new confirmation email. Use Log in, Forgot password, or the new Resend verification email control when the original signup is still awaiting confirmation. Passwords are never sent in email. Supabase's default email sender is best-effort and rate-limited; custom SMTP is required for dependable delivery.
 
 ## Cloud AI
 
