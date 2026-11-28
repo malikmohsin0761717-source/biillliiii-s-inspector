@@ -58,6 +58,18 @@ test('local cloud and owner password fields include accessible show/hide control
   assert.match(app, /auth-password-wrap/);
 });
 
+test('local auth patch script backs up code, preserves user data and verifies before completion', () => {
+  const patch = fs.readFileSync(path.join(root, 'APPLY_LOCAL_AUTH_FIXES.ps1'), 'utf8');
+  assert.match(patch, /\.patch-backups/);
+  assert.match(patch, /data\\projects\.json/);
+  assert.match(patch, /data\\auth\.json/);
+  assert.match(patch, /\.env/);
+  assert.match(patch, /npm\.cmd test/);
+  assert.match(patch, /npm\.cmd run check/);
+  assert.match(patch, /Code rollback complete/);
+  assert.match(patch, /SHA-256 verification fail/);
+});
+
 test('Supabase projects migration enables owner-scoped RLS for all CRUD operations', () => {
   assert.match(sql, /enable row level security/i);
   assert.match(sql, /revoke all on table public\.projects from anon, authenticated/i);
