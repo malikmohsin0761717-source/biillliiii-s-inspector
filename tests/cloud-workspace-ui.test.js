@@ -75,6 +75,8 @@ test('AI tools show whether the server-side provider is configured without expos
 
 test('Settings provides safe direct links for SMTP, auth security and server-only AI configuration', () => {
   assert.match(html, /auth\/smtp/);
+  assert.match(html, /auth\/url-configuration/);
+  assert.match(html, /biillliiii-inspector-cloud-app\.vercel\.app\/\*\*/);
   assert.match(html, /environment-variables/);
   assert.match(html, /OPENAI_API_ENABLED=true/);
   assert.match(html, /settingsAIStatus/);
