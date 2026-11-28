@@ -22,6 +22,12 @@ test('desktop UIA script requires approved app names and excludes sensitive cont
   assert.match(script,/ControlType\.Text/);assert.doesNotMatch(script,/SendKeys|GetAsyncKeyState|Clipboard|Screenshot|WindowTitle/i);
 });
 
+test('local patch invokes desktop UIA with its safe default empty allowlist',()=>{
+  const applyScript=fs.readFileSync(path.join(root,'APPLY_LOCAL_AUTH_FIXES.ps1'),'utf8');
+  assert.match(applyScript,/-File \(Join-Path \$TargetPath 'monitoring\\desktop-inspector\.ps1'\)\s*\r?\n/);
+  assert.doesNotMatch(applyScript,/desktop-inspector\.ps1'\)\s+-ApprovedApps/);
+});
+
 test('Chrome extension is manual-only, requests per-origin permission and blocks forms/sensitive pages',()=>{
   const manifest=JSON.parse(fs.readFileSync(path.join(root,'browser-extension','manifest.json'),'utf8'));
   const popup=fs.readFileSync(path.join(root,'browser-extension','popup.js'),'utf8');
