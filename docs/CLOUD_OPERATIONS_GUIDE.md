@@ -60,3 +60,17 @@ Run the CI workflows on GitHub after changes:
 - Cloud Phase 3 checks
 
 Production deployment is served by Vercel from the `main` branch. Verify the root page and `/api/cloud-auth/status` after each release.
+
+## Apply the local PC auth fix
+
+The repository includes `APPLY_LOCAL_AUTH_FIXES.ps1`. It updates only `cloud-auth.js`, `ui/app.js`, `ui/styles.css`, and the two cloud-auth tests. It creates a timestamped code backup, verifies SHA-256, runs `npm run check` and `npm test`, and restores the previous code files if verification fails. It does not copy or overwrite `.env`, `data/projects.json`, or `data/auth.json`.
+
+1. Open the private GitHub repository, choose **Code → Download ZIP**, and extract it.
+2. Open PowerShell in the extracted repository root.
+3. Run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\APPLY_LOCAL_AUTH_FIXES.ps1
+```
+
+The script defaults to the known local project folder. If the project is in a different folder, pass `-TargetPath "FULL\\PATH\\TO\\biillliiii_inspector_v5_development"`.
