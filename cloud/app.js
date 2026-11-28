@@ -363,7 +363,8 @@ $('#authForm').addEventListener('submit',async event=>{
       recoveryMode=false;setAuthMode(false);message($('#authMessage'),'Password update ho gaya. Ab naye password se login karein.');return;
     }
     const result=await api(signupMode?'/api/cloud-auth/signup':'/api/cloud-auth/login',{method:'POST',body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});
-    if(signupMode&&result.confirmationRequired)message($('#authMessage'),'Signup request process hui. Agar is email par pehle se account hai to dobara signup se nayi mail nahi aati — Log in ya Forgot password use karein. Naye account ke liye inbox aur spam folder check karein.');
+    if(signupMode&&result.existingAccount)message($('#authMessage'),result.message||'Account pehle se mojood hai. Log in ya Forgot password use karein.',true);
+    else if(signupMode&&result.confirmationRequired)message($('#authMessage'),'Account request process hui. Inbox aur spam folder check karein. Agar email na aaye to SMTP delivery configuration check karni hogi.');
     else {const status=await api('/api/cloud-auth/status');if(status.authenticated)showSignedIn(status.user);}
   }catch(e){const friendly=/invalid login credentials/i.test(e.message)?'Email ya password match nahi hua. Password yaad nahi to Forgot password use karein.':e.message;message($('#authMessage'),friendly,true);}
   finally{button.disabled=false;}
