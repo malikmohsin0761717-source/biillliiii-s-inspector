@@ -73,4 +73,4 @@ The repository includes `APPLY_LOCAL_AUTH_FIXES.ps1`. It updates only `cloud-aut
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\APPLY_LOCAL_AUTH_FIXES.ps1
 ```
 
-The script defaults to the known local project folder. If the project is in a different folder, pass `-TargetPath "FULL\\PATH\\TO\\biillliiii_inspector_v5_development"`.
+The script defaults to the known local project folder. It also runs a one-shot Windows system snapshot and a Desktop UIA privacy-guard check with no approved apps (so no desktop text is captured). If the project is in a different folder, pass `-TargetPath "FULL\\PATH\\TO\\biillliiii_inspector_v5_development"`.
