@@ -6,7 +6,10 @@ function Write-Result($status, $app, $text, $reason) {
     [pscustomobject]@{ status=$status; source='desktop-uia'; capturedAt=(Get-Date).ToString('o'); app=$app; text=$text; reason=$reason } | ConvertTo-Json -Compress
 }
 
-$allowed = @($ApprovedApps.Split(',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ })
+$allowed = @()
+if (-not [string]::IsNullOrWhiteSpace($ApprovedApps)) {
+    $allowed = @($ApprovedApps.Split(',') | ForEach-Object { $_.Trim().ToLowerInvariant() } | Where-Object { $_ })
+}
 $blocked = @('logonui','lockapp','credentialuibroker','1password','keepass','bitwarden','lastpass','dashlane','authy','nordpass','outlook','olk','thunderbird','hxoutlook','windowsmail','paytm','phonepe','easypaisa','jazzcash','hbl','meezan','ubl','banking','bank')
 $hwnd = [IntPtr]::Zero
 $processName = 'Unknown'
