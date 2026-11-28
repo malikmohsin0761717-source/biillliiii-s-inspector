@@ -181,8 +181,14 @@ async function sendChat(mode,event) {
     c.messages.push({role:'assistant',content:result.message,createdAt:new Date().toISOString()});
     await persistConversation(mode);renderChat(mode);message($('#'+mode+'Message'),'Response aur conversation history save ho gayi.');
   }catch(e){
-    if(e.code==='AI_DISABLED') message($('#'+mode+'Message'),'Cloud AI disabled hai. Server par OPENAI_API_ENABLED=true aur OPENAI_API_KEY configured hona chahiye. Koi paid API request nahi bheji gayi.',true);
-    else message($('#'+mode+'Message'),e.message,true);
+    // Keep the user's own prompt in cloud history even when AI is unavailable.
+    try { await persistConversation(mode); } catch (saveError) {
+      message($('#'+mode+'Message'),e.message+' | User message save bhi nahi ho saka: '+saveError.message,true);
+      renderChat(mode);
+      return;
+    }
+    if(e.code==='AI_DISABLED') message($('#'+mode+'Message'),'Aapka sawal history mein save ho gaya. Cloud AI abhi server par enabled nahi; paid API request nahi bheji gayi.',true);
+    else message($('#'+mode+'Message'),e.message+' | Aapka sawal history mein save ho gaya.',true);
     renderChat(mode);
   }finally{button.disabled=false;input.disabled=false;input.focus();}
 }
