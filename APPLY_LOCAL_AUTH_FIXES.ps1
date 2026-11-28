@@ -117,7 +117,7 @@ try {
     if ($null -eq $Snapshot -or -not ($Snapshot.PSObject.Properties.Name -contains 'activeApp')) { throw 'Windows snapshot output invalid hai.' }
 
     Write-Host 'Desktop UIA privacy guard test (empty approved-app list)...' -ForegroundColor Cyan
-    $DesktopRaw = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $TargetPath 'monitoring\desktop-inspector.ps1') -ApprovedApps ''
+    $DesktopRaw = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $TargetPath 'monitoring\desktop-inspector.ps1')
     if ($LASTEXITCODE -ne 0) { throw 'Desktop UIA privacy guard script fail hui.' }
     $DesktopCheck = ($DesktopRaw -join "`n") | ConvertFrom-Json
     if ($null -eq $DesktopCheck -or @('not-approved','blocked','unsupported') -notcontains [string]$DesktopCheck.status) {
